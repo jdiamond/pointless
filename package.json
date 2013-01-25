@@ -8,5 +8,11 @@
     "url": "https://github.com/jdiamond/pointless.git"
   },
   "author": "Jason Diamond",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "qunit": "~0.5.15"
+  },
+  "scripts": {
+    "test": "qunit -c pointless.js -t tests.js"
+  }
 }
