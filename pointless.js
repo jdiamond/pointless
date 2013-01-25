@@ -161,6 +161,7 @@ var Q;
 function Promise(val) {
     if (!(this instanceof Promise)) { return new Promise(val); }
     Q = Q || require('q');
+    if (!Q) { throw new Error('Q?'); }
     Pointless.call(this, Q.when(val));
 }
 
