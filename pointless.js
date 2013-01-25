@@ -1,6 +1,5 @@
 ;(function (root, factory) {
     if (typeof exports === 'object') {
-        console.log('Node');
         module.exports = factory(require);
     } else if (typeof define === 'function' && define.amd) {
         define([ 'require' ], factory);
@@ -72,7 +71,7 @@ Pointless.each = function (_, fn) {
         _.forEach(fn);
     } else if (typeof _.length === 'number') {
         for (var i = 0, n = _.length; i < n; i++) {
-            fn(_[i], i);
+            fn(_[i], i, _);
         }
     } else {
         fn(_, 0);
