@@ -1,0 +1,12 @@
+{
+  "name": "pointless",
+  "version": "0.0.0",
+  "description": "Point-free programming in JavaScript",
+  "main": "pointless.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jdiamond/pointless.git"
+  },
+  "author": "Jason Diamond",
+  "license": "MIT"
+}
