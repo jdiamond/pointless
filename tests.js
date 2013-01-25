@@ -1,83 +1,92 @@
-(function() {
+(function(root) {
 
 QUnit.module('basic');
 
+var sinon = root.sinon || require('sinon');
+
+test('_ has value', function() {
+    equal(P(12)._, 12);
+});
+
 test('then applies value to function', function() {
-    P(12).then(expect(12));
+    P(12).then(function (value) {
+        equal(value, 12);
+    });
 });
 
 test('then transforms value to new value', function() {
-    P(12).then(add1).then(expect(13));
+    P(12).then(add1).then(function (value) {
+        equal(value, 13);
+    });
 });
 
 test('map number', function() {
-    P(12).map(add1).then(expect(13));
+    equal(P(12).map(add1)._, 13);
 });
 
 test('map array of numbers', function() {
-    P([ 1, 2 ]).map(add1).then(expect([ 2, 3 ]));
+    deepEqual(P([ 1, 2 ]).map(add1)._, [ 2, 3 ]);
 });
 
 test('map array-like of numbers', function() {
-    P(arrayLike(1, 2)).map(add1).then(expect([ 2, 3 ]));
+    deepEqual(P(arrayLike(1, 2)).map(add1)._, [ 2, 3 ]);
 });
 
 test('reduce number with seed', function() {
-    P(12).reduce(add, 1).then(expect(13));
+    equal(P(12).reduce(add, 1)._, 13);
 });
 
 test('reduce number without seed', function() {
-    P(12).reduce(add).then(expect(12));
+    equal(P(12).reduce(add)._, 12);
 });
 
 test('reduce array of numbers', function() {
-    P([ 1, 2 ]).reduce(add, 0).then(expect(3));
+    equal(P([ 1, 2 ]).reduce(add, 0)._, 3);
 });
 
 test('reduce array of numbers with no initial value', function() {
-    P([ 1, 2 ]).reduce(add).then(expect(3));
+    equal(P([ 1, 2 ]).reduce(add)._, 3);
 });
 
 test('reduce empty array with no initial value', function() {
-    throws(function() {
-        P([]).reduce(add).then(expect(3));
-    }, TypeError);
+    throws(function() { P([]).reduce(add); }, TypeError);
 });
 
 test('reduce array-like of numbers', function() {
-    P(arrayLike(1, 2)).reduce(add, 0).then(expect(3));
+    equal(P(arrayLike(1, 2)).reduce(add, 0)._, 3);
 });
 
 test('reduce array-like of numbers with no initial value', function() {
-    P(arrayLike(1, 2)).reduce(add).then(expect(3));
+    equal(P(arrayLike(1, 2)).reduce(add)._, 3);
 });
 
 test('reduce empty array-like with no initial value', function() {
-    throws(function() {
-        P(arrayLike()).reduce(add).then(expect(3));
-    }, TypeError);
+    throws(function() { P(arrayLike()).reduce(add); }, TypeError);
 });
 
 test('each number', function() {
-    // TODO: Assert that add1 gets called with value and index.
-    P(12).each(add1).then(expect(12));
+    var add1Spy = sinon.spy(add1);
+    equal(P(12).each(add1Spy)._, 12);
+    equal(add1Spy.callCount, 1);
+    deepEqual(add1Spy.getCall(0).args, [ 12, 0 ]);
+    // each on a non-array doesn't pass in 3rd argument?
 });
 
 test('each array of numbers', function() {
-    // TODO: Assert that add1 gets called with each value and index.
-    P([ 1, 2 ]).each(add1).then(expect([ 1, 2 ]));
+    var add1Spy = sinon.spy(add1);
+    deepEqual(P([ 1, 2 ]).each(add1Spy)._, [ 1, 2 ]);
+    equal(add1Spy.callCount, 2);
+    deepEqual(add1Spy.getCall(0).args, [ 1, 0, [ 1, 2 ] ]);
+    deepEqual(add1Spy.getCall(1).args, [ 2, 1, [ 1, 2 ] ]);
 });
 
 test('each array-like of numbers', function() {
-    // TODO: Assert that add1 gets called with each argument and index.
-    P(arrayLike(1, 2)).each(add1).then(expect(arrayLike(1, 2)));
+    var add1Spy = sinon.spy(add1);
+    deepEqual(P(arrayLike(1, 2)).each(add1Spy)._, arrayLike(1, 2));
+    equal(add1Spy.callCount, 2);
+    deepEqual(add1Spy.getCall(0).args, [ 1, 0, arrayLike(1, 2) ]);
+    deepEqual(add1Spy.getCall(1).args, [ 2, 1, arrayLike(1, 2) ]);
 });
-
-function expect(expected) {
-    return function(actual) {
-        deepEqual(actual, expected);
-    };
-}
 
 function arrayLike() {
     return arguments;
@@ -91,4 +100,4 @@ function add(a, b) {
     return a + b;
 }
 
-})();
+})(this);

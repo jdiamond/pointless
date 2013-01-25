@@ -6,58 +6,58 @@ var Q = root.Q || require('q');
 var sinon = root.sinon || require('sinon');
 
 asyncTest('then after number', function() {
-    P(12).eventually().then(expect(12));
+    P(12).eventually().then(eventuallyExpect(12));
 });
 
 asyncTest('then after promise for number', function() {
-    P(Q.when(12)).eventually().then(expect(12));
+    P(Q.when(12)).eventually().then(eventuallyExpect(12));
 });
 
 asyncTest('map number', function() {
-    P(12).eventually().map(add1).then(expect(13));
+    P(12).eventually().map(add1).then(eventuallyExpect(13));
 });
 
 asyncTest('map array of numbers', function() {
-    P([ 1, 2 ]).eventually().map(add1).then(expect([ 2, 3 ]));
+    P([ 1, 2 ]).eventually().map(add1).then(eventuallyExpect([ 2, 3 ]));
 });
 
 asyncTest('map promise for number', function() {
-    P(Q.when(12)).eventually().map(add1).then(expect(13));
+    P(Q.when(12)).eventually().map(add1).then(eventuallyExpect(13));
 });
 
 asyncTest('map array of promises for numbers', function() {
-    P([ Q.when(1), Q.when(2) ]).eventually().map(add1).then(expect([ 2, 3 ]));
+    P([ Q.when(1), Q.when(2) ]).eventually().map(add1).then(eventuallyExpect([ 2, 3 ]));
 });
 
 asyncTest('map promise for array of promises for numbers', function() {
-    P(Q.when([ Q.when(1), Q.when(2) ])).eventually().map(add1).then(expect([ 2, 3 ]));
+    P(Q.when([ Q.when(1), Q.when(2) ])).eventually().map(add1).then(eventuallyExpect([ 2, 3 ]));
 });
 
 asyncTest('map number to promise for number', function() {
-    P(12).eventually().map(eventuallyAdd1).then(expect(13));
+    P(12).eventually().map(eventuallyAdd1).then(eventuallyExpect(13));
 });
 
 asyncTest('map array of numbers to array of promises for numbers', function() {
-    P([ 1, 2 ]).eventually().map(eventuallyAdd1).then(expect([ 2, 3 ]));
+    P([ 1, 2 ]).eventually().map(eventuallyAdd1).then(eventuallyExpect([ 2, 3 ]));
 });
 
 asyncTest('map promise for number to promise for number', function() {
-    P(Q.when(12)).eventually().map(eventuallyAdd1).then(expect(13));
+    P(Q.when(12)).eventually().map(eventuallyAdd1).then(eventuallyExpect(13));
 });
 
 asyncTest('map array of promises for numbers to array of promises for numbers', function() {
-    P([ Q.when(1), Q.when(2) ]).eventually().map(eventuallyAdd1).then(expect([ 2, 3 ]));
+    P([ Q.when(1), Q.when(2) ]).eventually().map(eventuallyAdd1).then(eventuallyExpect([ 2, 3 ]));
 });
 
 asyncTest('map promise for array of promises for numbers to array of promises for numbers', function() {
-    P(Q.when([ Q.when(1), Q.when(2) ])).eventually().map(eventuallyAdd1).then(expect([ 2, 3 ]));
+    P(Q.when([ Q.when(1), Q.when(2) ])).eventually().map(eventuallyAdd1).then(eventuallyExpect([ 2, 3 ]));
 });
 
 asyncTest('mixed map test', function() {
     var deferredArray = Q.defer();
     var deferredNumber = Q.defer();
 
-    P(deferredArray.promise).eventually().map(add1).then(expect([ 2, 3 ]));
+    P(deferredArray.promise).eventually().map(add1).then(eventuallyExpect([ 2, 3 ]));
 
     deferredArray.resolve([ 1, deferredNumber.promise ]);
     deferredNumber.resolve(2);
@@ -171,7 +171,7 @@ asyncTest('reduce empty array-like without seed', function() {
     });
 });
 
-function expect(expected) {
+function eventuallyExpect(expected) {
     return function(actual) {
         deepEqual(actual, expected);
         start();
