@@ -1,6 +1,9 @@
-(function() {
+(function(root) {
 
 QUnit.module('eventually');
+
+var Q = root.Q || require('q');
+var sinon = root.sinon || require('sinon');
 
 asyncTest('then after number', function() {
     P(12).eventually().then(expect(12));
@@ -191,4 +194,4 @@ function eventuallyAdd1(val) {
     return Q.when(val + 1);
 }
 
-})();
+})(this);

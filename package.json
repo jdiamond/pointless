@@ -9,10 +9,15 @@
   },
   "author": "Jason Diamond",
   "license": "MIT",
+  "optionalDependencies": {
+    "q": "~0.8.12"
+  },
   "devDependencies": {
-    "qunit": "~0.5.15"
+    "q": "~0.8.12",
+    "qunit": "~0.5.15",
+    "sinon": "~1.5.2"
   },
   "scripts": {
-    "test": "qunit -c pointless.js -t tests.js"
+    "test": "qunit -c P:pointless.js -t tests.js promise-tests.js"
   }
 }
