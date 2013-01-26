@@ -91,11 +91,11 @@ Pointless.slice = function (_, start, end) {
     return [ _ ].slice(start, end);
 };
 
-Pointless.join = function (_, sep) {
+Pointless.join = function (_, separator) {
     if (_.join) {
-        return _.join(sep);
+        return _.join(separator);
     }
-    return Pointless.slice(_).join(sep);
+    return Pointless.slice(_).join(separator);
 };
 
 Pointless.keys = function (_) {
@@ -153,9 +153,9 @@ Pointless.prototype.slice = function (start, end) {
     });
 };
 
-Pointless.prototype.join = function (sep) {
+Pointless.prototype.join = function (separator) {
     return this.then(function (_) {
-        return Pointless.join(_, sep);
+        return Pointless.join(_, separator);
     });
 };
 

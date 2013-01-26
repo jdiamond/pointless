@@ -68,6 +68,12 @@ Like `Array.prototype.slice()`, but works with array-like objects.
 
     deepEqual( P([ 1, 2, 3, 4 ]).slice(1, 3)._, [ 2, 3 ] );
 
+### join(separator)
+
+Like `Array.prototype.join()`, but works with array-like objects.
+
+    equal( P([ 1, 2 ]).join(', ')._, '1, 2' );
+
 ### keys()
 
 Like `Object.keys()`, but works when `Object.keys` isn't defined.
