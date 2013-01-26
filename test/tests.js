@@ -88,6 +88,10 @@ test('each array-like of numbers', function() {
     deepEqual(add1Spy.getCall(1).args, [ 2, 1, arrayLike(1, 2) ]);
 });
 
+test('join array of numbers', function() {
+    deepEqual(P([ 1, 2 ]).join(', ')._, '1, 2');
+});
+
 test('keys from object', function() {
     deepEqual(
         P({ foo: 1, bar: 2 })

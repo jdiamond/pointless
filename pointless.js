@@ -91,6 +91,13 @@ Pointless.slice = function (_, start, end) {
     return [ _ ].slice(start, end);
 };
 
+Pointless.join = function (_, sep) {
+    if (_.join) {
+        return _.join(sep);
+    }
+    return Pointless.slice(_).join(sep);
+};
+
 Pointless.keys = function (_) {
     if (Object.keys) {
         return Object.keys(_);
@@ -146,6 +153,12 @@ Pointless.prototype.slice = function (start, end) {
     });
 };
 
+Pointless.prototype.join = function (sep) {
+    return this.then(function (_) {
+        return Pointless.join(_, sep);
+    });
+};
+
 Pointless.prototype.keys = function () {
     return this.then(function (_) {
         return Pointless.keys(_);
@@ -169,6 +182,18 @@ Pointless.prototype.console = function (method, label) {
 
 Pointless.prototype.log = function (label) {
     return this.console('log', label);
+};
+
+Pointless.prototype.info = function (label) {
+    return this.console('info', label);
+};
+
+Pointless.prototype.warn = function (label) {
+    return this.console('warn', label);
+};
+
+Pointless.prototype.error = function (label) {
+    return this.console('error', label);
 };
 
 Pointless.prototype.save = function () {
