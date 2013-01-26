@@ -22,61 +22,106 @@ API
 `P` is the main function. It returns a Pointless object.
 
 Pointless objects wrap values. The original value is accessible via
-the `._` property.
+the Pointless object's `_` property:
 
     equal( P(42)._, 42 );
 
-Pointless objects provide many methods for manipulating their values.
+That example may seem pointless (it is!), but you won't normally use
+the `_` property. Pointless objects provide many methods for
+manipulating their values and returning new Pointless objects.
 
-All methods available on Pointless objects are also available as
-"static" methods on the `P` function. These methods take in an
+    P(document.querySelectorAll('#form input'))
+    .map(function (input) { return input.name + '=' + input.value; })
+    .join('&')
+    .then(function (values) {
+        // Do Ajax with values...
+    });
+
+Many of the methods available on Pointless objects are also available
+as "static" methods on the `P` function. These methods take in an
 unwrapped value as their first argument and return an unwrapped
 value. They are meant for quick application of a single Pointless
 method. To apply more than one Pointless method to a value, consider
 chaining off a Pointless object instead.
 
-### map
+### map(fn)
 
     deepEqual( P([ 1, 2 ]).map(add1)._, [ 2, 3 ] );
 
     function add1(val) { return val + 1; }
 
-### reduce
+### reduce(fn, [seed])
 
     equal( P([ 1, 2 ]).reduce(add)._, 3 );
 
     function add(a, b) { return a + b; }
 
-### each
+### each(fn)
 
     deepEqual( P([ 1, 2 ]).each(add1)._, [ 1, 2 ] );
 
     function add1(val) { return val + 1; }
 
-### if, ifExists
+### slice(start, end)
+
+Like `Array.prototype.slice()`, but works with array-like objects.
+
+    deepEqual( P([ 1, 2, 3, 4 ]).slice(1, 3)._, [ 2, 3 ] );
+
+### keys()
+
+Like `Object.keys()`, but works when `Object.keys` isn't defined.
+
+### tap(fn)
+
+Invokes `fn` with the current value and then returns the current
+Pointless object.
+
+### console(method, [label])
+
+Invokes `method` on `console` with the current value. If `label` is
+defined, `': '` is appended to it, and then that's used as a prefix.
+
+### log([label]), info([label]), warn([label]), error([label])
+
+Logs (via `console.log`, etc) the current value with an optional
+label.
+
+### if(), ifExists()
 
 `.if()` and `.ifExists()` both do the same thing: if the current
 value is *not* `undefined` or `null`, return the current object.
 Otherwise, return a Pointless object that does nothing whenever
 any of its methods are invoked.
 
-    P(42).ifExists().then(console.log); // calls log with 42
-    P(null).ifExists().then(console.log); // never calls log
+    P(42).if().then(console.log); // Calls log with 42.
+    P(null).if().then(console.log); // Never calls log.
 
 Note that you won't be able to use `.if()` in non-ES5 environments
-(like Internet Explorer before version 9).
+(like Internet Explorer before version 9) without doing something
+like this:
 
-### save, restore
+    P(42)['if']().then(console.log); // Use .ifExists() instead...
+
+TODO: Add ifTruthy, ifFalsy, ifTrue, ifFalse, ifDefined, ifUndefined?
+
+Maybe if should be equivalent to ifTruthy and not ifExists...
+
+TODO: else and otherwise (for ES3) to restore the previous object?
+
+### save(), restore()
 
 `.save()` and `.restore()` can be used to save and restore
 (surprise!) a previous Pointless object.
 
-### then
+TODO: Named saves and restores?
+
+### then(fn)
 
 Pointless objects have a `.then()` method that takes in a function
 and invokes that function with the current value:
 
-    P(42).then(function(val) { equal( val, 42 ); });
+    P(42).then(function (val) { equal( val, 42 ); });
 
 `.then()` returns a Pointless object wrapping the return value of
 its callback:
@@ -102,7 +147,7 @@ resolved values.
 Code to map the results of a promise for an array that looks like
 this:
 
-    getPromiseForArray().then(function(arr) {
+    getPromiseForArray().then(function (arr) {
         return arr.map(processResult);
     })
 
@@ -120,11 +165,11 @@ example:
     P(getPromiseForArray())
     .eventually()
     .map(processResult)
-    .then(function(values) {
+    .then(function (values) {
         // values and everything in it has been fulfilled.
     });
 
-Pointless relies on Q for its promise implementation. If you need
-support for promises, be sure to include Q (or install it in
-node_modules). If you never call `.eventually()`, you don't need to
-bother with Q.
+Pointless relies on [Q](http://documentup.com/kriskowal/q/) for its
+promise implementation. If you need support for promises, be sure to
+include Q (or install it in node_modules). If you never call
+`.eventually()`, you don't need to bother with Q.
