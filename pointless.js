@@ -91,6 +91,19 @@ Pointless.slice = function (_, start, end) {
     return [ _ ].slice(start, end);
 };
 
+Pointless.keys = function (_) {
+    if (Object.keys) {
+        return Object.keys(_);
+    }
+    var keys = [];
+    for (var key in _) {
+        if (_.hasOwnProperty(key)) {
+            keys.push(key);
+        }
+    }
+    return keys;
+};
+
 Pointless.prototype.then = function (fn) {
     return new this.constructor(fn(this._), this);
 };
@@ -130,6 +143,12 @@ Pointless.prototype.mapEach = function (fn) {
 Pointless.prototype.slice = function (start, end) {
     return this.then(function (_) {
         return Pointless.slice(_, start, end);
+    });
+};
+
+Pointless.prototype.keys = function () {
+    return this.then(function (_) {
+        return Pointless.keys(_);
     });
 };
 
@@ -279,7 +298,7 @@ Nothing.prototype = new Pointless();
 
 Nothing.prototype.constructor = Nothing;
 
-Pointless(Object.keys(Pointless.prototype)).each(function(key) {
+Pointless(Pointless.prototype).keys().each(function(key) {
     Nothing.prototype[key] = function() { return this; };
 });
 
