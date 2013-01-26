@@ -18,6 +18,6 @@
     "sinon": "~1.5.2"
   },
   "scripts": {
-    "test": "qunit -c P:pointless.js -t test/tests.js test/promise-tests.js"
+    "test": "qunit -c P:pointless.js -t test/tests.js test/if-tests.js test/save-restore-tests.js test/promise-tests.js"
   }
 }

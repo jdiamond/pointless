@@ -4,8 +4,10 @@ Pointless.js
 Pointless is a library for working with values, arrays, objects,
 functions, and promises with a uniform interface and in a point-free style.
 
-It does not provide any facilities for working with the DOM, but can
-be extended to do so via plugins.
+It works in the browser (with or without AMD) and as a Node.js module.
+
+Pointless does not provide any facilities for working with the DOM,
+but can be extended to do so via plugins.
 
 Pointless is inspired by:
 
@@ -51,37 +53,28 @@ chaining off a Pointless object instead.
 
     function add1(val) { return val + 1; }
 
-### ifFirst, ifNotFirst
+### if, ifExists
 
-    fs.exists('file.txt', P.maybeIfFirst(
-        P.partial(
-            fs.readFile, 'file.txt', 'utf-8',
-            P.maybeIfNotFirst(console.log, console.error)
-        )
-    ));
+`.if()` and `.ifExists()` both do the same thing: if the current
+value is *not* `undefined` or `null`, return the current object.
+Otherwise, return a Pointless object that does nothing whenever
+any of its methods are invoked.
 
-    P(fs.exists).callBackLast()
-    .call('file.txt')
-    .eventually()
-    .ifFirst(function() {
-        P(fs.readFile).nodeBackLast()
-        .call('file.txt')
-        .eventually()
-        .ifNotFirst(console.log, console.error);
-    });
+    P(42).ifExists().then(console.log); // calls log with 42
+    P(null).ifExists().then(console.log); // never calls log
 
-    P('file.txt')
-    .save()
-    .applyToFirst(P(fs.exists).callBackLast()._)
-    .eventually()
-    .ifFirst()
-    .restore()
-    .applyToFirst(P.nodeBackLast(fs.readFile), 'utf-8')
-    .ifNotFirst(console.log, console.error);
+Note that you won't be able to use `.if()` in non-ES5 environments
+(like Internet Explorer before version 9).
+
+### save, restore
+
+`.save()` and `.restore()` can be used to save and restore
+(surprise!) a previous Pointless object.
 
 ### then
 
-Pointless objects have a `.then()` method:
+Pointless objects have a `.then()` method that takes in a function
+and invokes that function with the current value:
 
     P(42).then(function(val) { equal( val, 42 ); });
 
@@ -132,5 +125,6 @@ example:
     });
 
 Pointless relies on Q for its promise implementation. If you need
-support for promises, be sure to include Q. If you never call
-`.eventually()`, you don't need to bother including Q.
+support for promises, be sure to include Q (or install it in
+node_modules). If you never call `.eventually()`, you don't need to
+bother with Q.

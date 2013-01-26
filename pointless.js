@@ -8,9 +8,12 @@
     }
 })(this, function (require) {
 
-function Pointless(val) {
+function Pointless(val, previous) {
     if (!(this instanceof Pointless)) { return new Pointless(val); }
     this._ = val;
+    if (previous) {
+        this.p = previous;
+    }
 }
 
 Pointless.extend = function (target, source) {
@@ -88,10 +91,8 @@ Pointless.slice = function (_, start, end) {
     return [ _ ].slice(start, end);
 };
 
-Pointless.prototype.then = function (fulfilled, rejected, progressed) {
-    return new this.constructor(
-        fulfilled(this._)
-    );
+Pointless.prototype.then = function (fn) {
+    return new this.constructor(fn(this._), this);
 };
 
 Pointless.prototype.extend = function (source) {
@@ -102,20 +103,23 @@ Pointless.prototype.extend = function (source) {
 
 Pointless.prototype.map = function (fn) {
     return new this.constructor(
-        Pointless.map(this._, fn)
+        Pointless.map(this._, fn),
+        this
     );
 };
 
 Pointless.prototype.reduce = function (fn, seed) {
     return new this.constructor(
         arguments.length === 2 ? Pointless.reduce(this._, fn, seed)
-                               : Pointless.reduce(this._, fn)
+                               : Pointless.reduce(this._, fn),
+        this
     );
 };
 
 Pointless.prototype.each = function (fn) {
     return new this.constructor(
-        Pointless.each(this._, fn)
+        Pointless.each(this._, fn),
+        this
     );
 };
 
@@ -148,21 +152,45 @@ Pointless.prototype.log = function (label) {
     return this.console('log', label);
 };
 
+Pointless.prototype.save = function () {
+    this.saved = true;
+    return this;
+};
+
+Pointless.prototype.restore = function () {
+    var previous = this.p;
+    while (previous) {
+        if (previous.saved) {
+            return previous;
+        }
+        previous = previous.p;
+    }
+    throw new Error('Nothing saved');
+};
+
+Pointless.prototype['if'] = function () {
+    return (this._ === undefined || this._ === null) ? new Nothing(this) : this;
+};
+
+Pointless.prototype.ifExists = function () {
+    return this['if']();
+};
+
 Pointless.prototype.eventually = function () {
-    return new Promise(this._);
+    return new Promise(this._, this);
 };
 
 Pointless.prototype.immediately = function () {
-    return new Pointless(this._);
+    return new Pointless(this._, this);
 };
 
 var Q;
 
-function Promise(val) {
-    if (!(this instanceof Promise)) { return new Promise(val); }
+function Promise(val, previous) {
+    if (!(this instanceof Promise)) { return new Promise(val, previous); }
     Q = Q || require('q');
     if (!Q) { throw new Error('Q?'); }
-    Pointless.call(this, Q.when(val));
+    Pointless.call(this, Q.when(val), previous);
 }
 
 Promise.prototype = new Pointless();
@@ -242,6 +270,21 @@ Pointless(Promise.prototype).extend({
     }
 
 });
+
+function Nothing(previous) {
+    this.p = previous;
+}
+
+Nothing.prototype = new Pointless();
+
+Nothing.prototype.constructor = Nothing;
+
+Pointless(Object.keys(Pointless.prototype)).each(function(key) {
+    Nothing.prototype[key] = function() { return this; };
+});
+
+Pointless.Promise = Promise;
+Pointless.Nothing = Nothing;
 
 return Pointless;
 
