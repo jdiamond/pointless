@@ -93,27 +93,43 @@ defined, `': '` is appended to it, and then that's used as a prefix.
 Logs (via `console.log`, etc) the current value with an optional
 label.
 
-### if(), ifExists()
+### Conditional Functions
 
-`.if()` and `.ifExists()` both do the same thing: if the current
-value is *not* `undefined` or `null`, return the current object.
-Otherwise, return a Pointless object that does nothing whenever
-any of its methods are invoked.
+The following functions take in a value and return a boolean:
 
-    P(42).if().then(console.log); // Calls log with 42.
-    P(null).if().then(console.log); // Never calls log.
+- P.truthy(val) - true when truthy
+- P.falsy(val) - true when falsy
+- P.defined(val) - true when not `undefined` (even `null`)
+- P.undefined(val) - true when `undefined`
+- P.any(val) - true when non-empty array or truthy non-array
+- P.empty(val) - true when empty array or falsy non-array
+- P.exists(val) - true when not `null` or `undefined`
+- P.nothing(val) - true when `null` or `undefined`
 
-Note that you won't be able to use `.if()` in non-ES5 environments
-(like Internet Explorer before version 9) without doing something
-like this:
+### when(test, then, else)
 
-    P(42)['if']().then(console.log); // Use .ifExists() instead...
+Tests the current value and then executes one of the two functions.
 
-TODO: Add ifTruthy, ifFalsy, ifTrue, ifFalse, ifDefined, ifUndefined?
+The test can be a function, in which case the current value is
+applied to that function.
 
-Maybe if should be equivalent to ifTruthy and not ifExists...
+The test can also be a non-function. In this case, the current
+value is compared (with `===`) to that value.
 
-TODO: else and otherwise (for ES3) to restore the previous object?
+### Conditional Methods
+
+The following methods can be invoked on Pointless objects:
+
+- .truthy(then, else)
+- .falsy(then, else)
+- .defined(then, else)
+- .undefined(then, else)
+- .any(then, else)
+- .empty(then, else)
+- .exists(then, else)
+- .nothing(then, else)
+
+Both `then` and `else` arguments are optional.
 
 ### save(), restore()
 

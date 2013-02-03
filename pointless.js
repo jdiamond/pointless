@@ -212,13 +212,31 @@ Pointless.prototype.restore = function () {
     throw new Error('Nothing saved');
 };
 
-Pointless.prototype['if'] = function () {
-    return (this._ === undefined || this._ === null) ? new Nothing(this) : this;
+Pointless.truthy = function(_) { return !!_; };
+Pointless.falsy = function(_) { return !_; };
+Pointless.defined = function(_) { return _ !== void 0; };
+Pointless['undefined'] = function(_) { return _ === void 0; };
+Pointless.any = function(_) { return _ && typeof _.length === 'number' ? _.length > 0 : !!_; };
+Pointless.empty = function(_) { return (_ && _.length === 0) || !_; };
+Pointless.exists = function(_) { return _ !== null && _ !== undefined; };
+Pointless.nothing = function(_) { return _ === null || _ === undefined; };
+
+Pointless.prototype.when = function (test, then, else_) {
+    return this.then(function(_) {
+        return test(_) ? then  ? then (_) : _
+                       : else_ ? else_(_) : _
+                       ;
+    });
 };
 
-Pointless.prototype.ifExists = function () {
-    return this['if']();
-};
+var conditionals = 'truthy falsy defined undefined any empty exists nothing'.split(' ');
+
+Pointless.each(conditionals, function(name) {
+    var test = Pointless[name];
+    Pointless.prototype[name] = function(then, else_) {
+        return this.when(test, then, else_);
+    };
+});
 
 Pointless.prototype.eventually = function () {
     return new Promise(this._, this);
