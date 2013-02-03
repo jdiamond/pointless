@@ -223,9 +223,10 @@ Pointless.nothing = function(_) { return _ === null || _ === undefined; };
 
 Pointless.prototype.when = function (test, then, else_) {
     return this.then(function(_) {
-        return test(_) ? then  ? then (_) : _
-                       : else_ ? else_(_) : _
-                       ;
+        return (typeof test === 'function' ? test(_)
+                                           : _ === test) ?  then ? then (_) : _
+                                                         : else_ ? else_(_) : _
+                                                         ;
     });
 };
 

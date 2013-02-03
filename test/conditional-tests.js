@@ -20,6 +20,14 @@ test('when executes 3rd function when 1st returns falsy', function() {
     )._, 11);
 });
 
+test('when can test with non-function', function() {
+    equal(P(12).when(
+        12,
+        function(val) { return val + 1; },
+        function(val) { return val - 1; }
+    )._, 13);
+});
+
 test('truthy', function() {
     strictEqual(P.truthy(true), true);
     strictEqual(P.truthy({}), true);
