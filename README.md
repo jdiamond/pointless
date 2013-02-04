@@ -31,9 +31,9 @@ the `_` property. Pointless objects provide many methods for
 manipulating their values and returning new Pointless objects.
 
     P(document.querySelectorAll('#form input'))
-    .map(function (input) { return input.name + '=' + input.value; })
+    .map(function(input) { return input.name + '=' + input.value; })
     .join('&')
-    .then(function (values) {
+    .then(function(values) {
         // Do Ajax with values...
     });
 
@@ -157,7 +157,7 @@ TODO: Named saves and restores?
 Pointless objects have a `.then()` method that takes in a function
 and invokes that function with the current value:
 
-    P(42).then(function (val) { equal( val, 42 ); });
+    P(42).then(function(val) { equal( val, 42 ); });
 
 `.then()` returns a Pointless object wrapping the return value of
 its callback:
@@ -183,7 +183,7 @@ resolved values.
 Code to map the results of a promise for an array that looks like
 this:
 
-    getPromiseForArray().then(function (arr) {
+    getPromiseForArray().then(function(arr) {
         return arr.map(processResult);
     })
 
@@ -201,7 +201,7 @@ example:
     P(getPromiseForArray())
     .eventually()
     .map(processResult)
-    .then(function (values) {
+    .then(function(values) {
         // values and everything in it has been fulfilled.
     });
 

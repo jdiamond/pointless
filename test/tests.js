@@ -9,13 +9,13 @@ test('_ has value', function() {
 });
 
 test('then applies value to function', function() {
-    P(12).then(function (value) {
+    P(12).then(function(value) {
         equal(value, 12);
     });
 });
 
 test('then transforms value to new value', function() {
-    P(12).then(add1).then(function (value) {
+    P(12).then(add1).then(function(value) {
         equal(value, 13);
     });
 });
