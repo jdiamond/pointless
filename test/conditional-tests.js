@@ -2,7 +2,7 @@
 
 (function(root) {
 
-QUnit.module('when');
+QUnit.module('conditionals');
 
 test('when executes 2nd function when 1st returns truthy', function() {
     equal(P(12).when(

@@ -16,6 +16,20 @@ function Pointless(val, previous) {
     }
 }
 
+Pointless.partial = function (fn) {
+    var left = Pointless.slice(arguments, 1);
+    return function () {
+        return fn.apply(this, left.concat(Pointless.slice(arguments)));
+    };
+};
+
+Pointless.partialRight = function (fn) {
+    var right = Pointless.slice(arguments, 1);
+    return function () {
+        return fn.apply(this, Pointless.slice(arguments).concat(right));
+    };
+};
+
 Pointless.extend = function (target, source) {
     for (var key in source) {
         if (source.hasOwnProperty(key)) {

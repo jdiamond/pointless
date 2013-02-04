@@ -131,6 +131,20 @@ The following methods can be invoked on Pointless objects:
 
 Both `then` and `else` arguments are optional.
 
+### Partial Application
+
+`P.partial()` returns a function that applies its arguments to the
+right of the original arguments.
+
+    var pf = P.partial(f, 1, 2);
+    pf(3, 4); // Calls f with 1, 2, 3, and 4
+
+`P.partialRight()` returns a function that applies its arguments to
+the left of the original arguments.
+
+    var pf = P.partialRight(f, 3, 4);
+    pf(1, 2); // Calls f with 1, 2, 3, and 4
+
 ### save(), restore()
 
 `.save()` and `.restore()` can be used to save and restore
