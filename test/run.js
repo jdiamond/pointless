@@ -4,7 +4,6 @@ var tests = [
     'tests.js',
     'function-tests.js',
     'conditional-tests.js',
-    'save-restore-tests.js',
     'promise-tests.js'
 ];
 

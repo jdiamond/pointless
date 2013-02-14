@@ -145,13 +145,6 @@ the left of the original arguments.
     var pf = P.partialRight(f, 3, 4);
     pf(1, 2); // Calls f with 1, 2, 3, and 4
 
-### save(), restore()
-
-`.save()` and `.restore()` can be used to save and restore
-(surprise!) a previous Pointless object.
-
-TODO: Named saves and restores?
-
 ### then(fn)
 
 Pointless objects have a `.then()` method that takes in a function

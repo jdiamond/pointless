@@ -10,12 +10,9 @@
 
 var P = Pointless;
 
-function Pointless(val, previous) {
+function Pointless(val) {
     if (!(this instanceof P)) { return new P(val); }
     this._ = val;
-    if (previous) {
-        this.p = previous;
-    }
 }
 
 P.chain = function() {
@@ -219,22 +216,6 @@ P.prototype.error = function(label) {
     return this.console('error', label);
 };
 
-P.prototype.save = function() {
-    this.saved = true;
-    return this;
-};
-
-P.prototype.restore = function() {
-    var previous = this.p;
-    while (previous) {
-        if (previous.saved) {
-            return previous;
-        }
-        previous = previous.p;
-    }
-    throw new Error('Nothing saved');
-};
-
 P.truthy = function(_) { return !!_; };
 P.falsy = function(_) { return !_; };
 P.defined = function(_) { return _ !== void 0; };
@@ -272,11 +253,11 @@ P.prototype.immediately = function() {
 
 var Q;
 
-function Promise(val, previous) {
-    if (!(this instanceof Promise)) { return new Promise(val, previous); }
+function Promise(val) {
+    if (!(this instanceof Promise)) { return new Promise(val); }
     Q = Q || require('q');
     if (!Q) { throw new Error('Q?'); }
-    P.call(this, Q.when(val), previous);
+    P.call(this, Q.when(val));
 }
 
 Promise.prototype = new P();
@@ -357,20 +338,7 @@ P(Promise.prototype).extend({
 
 });
 
-function Nothing(previous) {
-    this.p = previous;
-}
-
-Nothing.prototype = new P();
-
-Nothing.prototype.constructor = Nothing;
-
-P(P.prototype).keys().each(function(key) {
-    Nothing.prototype[key] = function() { return this; };
-});
-
 P.Promise = Promise;
-P.Nothing = Nothing;
 
 return P;
 
