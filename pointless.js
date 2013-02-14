@@ -16,6 +16,13 @@ function Pointless(val, previous) {
     }
 }
 
+Pointless.chain = function() {
+    var fns = P.slice(arguments);
+    return function(value) {
+        return fns.reduce(function(p, c) { return c(p); }, value);
+    };
+};
+
 Pointless.partial = function(fn) {
     var left = Pointless.slice(arguments, 1);
     return function() {

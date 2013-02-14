@@ -20,8 +20,19 @@ test('partialRight', function() {
     equal(result, '1, 2, 3, 4');
 });
 
+test('chain', function() {
+    var fn = P.chain(add1, mul2);
+
+    var result = fn(1);
+
+    equal(result, 4);
+});
+
 function joinAll(separator) {
     return P.join(P.slice(arguments, 1), separator);
 }
+
+function add1(value) { return value + 1; }
+function mul2(value) { return value * 2; }
 
 })(this);
