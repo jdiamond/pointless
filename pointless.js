@@ -132,7 +132,7 @@ P.keys = function(_) {
 };
 
 P.prototype.then = function(fn) {
-    return new this.constructor(fn(this._), this);
+    return new this.constructor(fn(this._));
 };
 
 P.prototype.extend = function(source) {
@@ -142,25 +142,18 @@ P.prototype.extend = function(source) {
 };
 
 P.prototype.map = function(fn) {
-    return new this.constructor(
-        P.map(this._, fn),
-        this
-    );
+    return new this.constructor(P.map(this._, fn));
 };
 
 P.prototype.reduce = function(fn, seed) {
     return new this.constructor(
         arguments.length === 2 ? P.reduce(this._, fn, seed)
-                               : P.reduce(this._, fn),
-        this
+                               : P.reduce(this._, fn)
     );
 };
 
 P.prototype.each = function(fn) {
-    return new this.constructor(
-        P.each(this._, fn),
-        this
-    );
+    return new this.constructor(P.each(this._, fn));
 };
 
 P.prototype.mapEach = function(fn) {
