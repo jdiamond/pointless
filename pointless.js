@@ -115,7 +115,7 @@ P.join = function(_, separator) {
     if (_.join) {
         return _.join(separator);
     }
-    return P.slice(_).join(separator);
+    return _ === null || _ === undefined ? '' : _.toString();
 };
 
 P.keys = function(_) {
