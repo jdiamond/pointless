@@ -3,6 +3,7 @@
 var tests = [
     'tests.js',
     'function-tests.js',
+    'format-tests.js',
     'conditional-tests.js',
     'promise-tests.js'
 ];

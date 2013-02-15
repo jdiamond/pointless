@@ -36,6 +36,19 @@ P.chain = function() {
     };
 };
 
+var formatRegExp = /\{([^}]+)\}/g;
+
+P.format = function(fmt) {
+    var args = Pointless.slice(arguments, 1);
+    if (args.length === 1) {
+        args = args[0];
+    }
+    return fmt.replace(formatRegExp, function(match, key) {
+        var val = args && args[key] || key === '0' && args;
+        return P.exists(val) ? val : '';
+    });
+};
+
 P.extend = function(target, source) {
     for (var key in source) {
         if (source.hasOwnProperty(key)) {
