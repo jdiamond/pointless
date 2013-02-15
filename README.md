@@ -118,18 +118,21 @@ value is compared (with `===`) to that value.
 
 ### Conditional Methods
 
-The following methods can be invoked on Pointless objects:
+These common tests have their own Pointless object methods that invoke
+`.when()` for you:
 
-- .truthy(then, else)
-- .falsy(then, else)
-- .defined(then, else)
-- .undefined(then, else)
-- .any(then, else)
-- .empty(then, else)
-- .exists(then, else)
-- .nothing(then, else)
+- .truthy(then, else) // tests if value is truthy
+- .falsy(then, else) // value is falsy
+- .defined(then, else) // value is not `undefined` (`null` is OK)
+- .undefined(then, else) // value is `undefined` (`null` is not `undefined`)
+- .exists(then, else) // value is not `null` or `undefined`
+- .nothing(then, else) // value is `null` or `undefined`
+- .any(then, else) // value has `length > 0` or is truthy
+- .empty(then, else) // value has `length === 0` or is falsy
 
-Both `then` and `else` arguments are optional.
+If the test passes, the `then` argument is invoked with the current value.
+Otherwise, the `else` argument is invoked with the current value. Both the
+`then` and `else` arguments are optional.
 
 ### Partial Application
 
@@ -144,6 +147,15 @@ the left of the original arguments.
 
     var pf = P.partialRight(f, 3, 4);
     pf(1, 2); // Calls f with 1, 2, 3, and 4
+
+### Function Chaining
+
+`P.chain()` accepts any number of functions and returns a new function that
+passes its argument through those function arguments. It's like reverse
+function composition.
+
+    var squareThenIncrement = P.chain(square, increment);
+    squareThenIncrement(2); // Equivalent to increment(square(2)) so returns 5
 
 ### then(fn)
 

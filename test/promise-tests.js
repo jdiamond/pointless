@@ -71,7 +71,7 @@ asyncTest('reduce number with seed', function() {
     .then(function(result) {
         equal(result, 13);
         equal(addSpy.callCount, 1);
-        deepEqual(addSpy.getCall(0).args, [ 1, 12, 0 ]);
+        deepEqual(addSpy.getCall(0).args, [ 1, 12, 0, [ 12 ] ]);
         start();
     });
 });
@@ -96,8 +96,8 @@ asyncTest('reduce array of numbers with seed', function() {
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 2);
-        deepEqual(addSpy.getCall(0).args, [ 0, 1, 0 ]);
-        deepEqual(addSpy.getCall(1).args, [ 1, 2, 1 ]);
+        deepEqual(addSpy.getCall(0).args, [ 0, 1, 0, [ 1, 2 ] ]);
+        deepEqual(addSpy.getCall(1).args, [ 1, 2, 1, [ 1, 2 ] ]);
         start();
     });
 });
@@ -110,7 +110,7 @@ asyncTest('reduce array of numbers without seed', function() {
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 1);
-        deepEqual(addSpy.getCall(0).args, [ 1, 2, 1 ]);
+        deepEqual(addSpy.getCall(0).args, [ 1, 2, 1, [ 1, 2 ] ]);
         start();
     });
 });
@@ -171,6 +171,33 @@ asyncTest('reduce empty array-like without seed', function() {
     });
 });
 
+asyncTest('reduce array of numbers with seed and reducer returning promise', function() {
+    var addSpy = sinon.spy(eventuallyAdd);
+    P([ 1, 2 ])
+    .eventually()
+    .reduce(addSpy, 0)
+    .then(function(result) {
+        equal(result, 3);
+        equal(addSpy.callCount, 2);
+        deepEqual(addSpy.getCall(0).args, [ 0, 1, 0, [ 1, 2 ] ]);
+        deepEqual(addSpy.getCall(1).args, [ 1, 2, 1, [ 1, 2 ] ]);
+        start();
+    });
+});
+
+asyncTest('reduce array of numbers without seed and reducer returning promise', function() {
+    var addSpy = sinon.spy(eventuallyAdd);
+    P([ 1, 2 ])
+    .eventually()
+    .reduce(addSpy)
+    .then(function(result) {
+        equal(result, 3);
+        equal(addSpy.callCount, 1);
+        deepEqual(addSpy.getCall(0).args, [ 1, 2, 1, [ 1, 2 ] ]);
+        start();
+    });
+});
+
 function eventuallyExpect(expected) {
     return function(actual) {
         deepEqual(actual, expected);
@@ -192,6 +219,10 @@ function add(a, b) {
 
 function eventuallyAdd1(val) {
     return Q.when(val + 1);
+}
+
+function eventuallyAdd(a, b) {
+    return Q.when(a + b);
 }
 
 })(this);

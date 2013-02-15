@@ -15,13 +15,6 @@ function Pointless(val) {
     this._ = val;
 }
 
-P.chain = function() {
-    var fns = P.slice(arguments);
-    return function(value) {
-        return fns.reduce(function(p, c) { return c(p); }, value);
-    };
-};
-
 P.partial = function(fn) {
     var left = P.slice(arguments, 1);
     return function() {
@@ -36,6 +29,13 @@ P.partialRight = function(fn) {
     };
 };
 
+P.chain = function() {
+    var fns = P.slice(arguments);
+    return function(value) {
+        return fns.reduce(function(p, c) { return c(p); }, value);
+    };
+};
+
 P.extend = function(target, source) {
     for (var key in source) {
         if (source.hasOwnProperty(key)) {
@@ -45,17 +45,21 @@ P.extend = function(target, source) {
     return target;
 };
 
+P.isArrayLike = function(_) {
+    return _ && typeof _.length === 'number';
+};
+
 P.map = function(_, fn) {
     var result;
     if (_.map) {
         result = _.map(fn);
-    } else if (typeof _.length === 'number') {
+    } else if (P.isArrayLike(_)) {
         result = [];
         for (var i = 0, n = _.length; i < n; i++) {
-            result.push(fn(_[i], i));
+            result.push(fn(_[i], i, _));
         }
     } else {
-        result = fn(_, 0);
+        result = fn(_, 0, [ _ ]);
     }
     return result;
 };
@@ -65,7 +69,7 @@ P.reduce = function(_, fn, seed) {
     var seeded = arguments.length >= 3;
     if (_.reduce) {
         result = seeded ? _.reduce(fn, seed) : _.reduce(fn);
-    } else if (typeof _.length === 'number') {
+    } else if (P.isArrayLike(_)) {
         var i = 0;
         if (seeded) {
             result = seed;
@@ -77,11 +81,11 @@ P.reduce = function(_, fn, seed) {
             result = _[0];
         }
         for (var n = _.length; i < n; i++) {
-            result = fn(result, _[i], i);
+            result = fn(result, _[i], i, _);
         }
     } else {
         if (seeded) {
-            result = fn(seed, _, 0);
+            result = fn(seed, _, 0, [ _ ]);
         } else {
             result = _;
         }
@@ -92,20 +96,37 @@ P.reduce = function(_, fn, seed) {
 P.each = function(_, fn) {
     if (_.forEach) {
         _.forEach(fn);
-    } else if (typeof _.length === 'number') {
+    } else if (P.isArrayLike(_)) {
         for (var i = 0, n = _.length; i < n; i++) {
             fn(_[i], i, _);
         }
     } else {
-        fn(_, 0);
+        fn(_, 0, [ _ ]);
     }
     return _;
+};
+
+P.filter = function(_, fn) {
+    var result;
+    if (_.filter) {
+        result = _.filter(fn);
+    } else if (P.isArrayLike(_)) {
+        result = [];
+        for (var i = 0, n = _.length; i < n; i++) {
+            if (fn(_[i], i, _)) {
+                result.push(_[i]);
+            }
+        }
+    } else {
+        result = fn(_, 0, [ _ ]) ? _ : undefined;
+    }
+    return result;
 };
 
 P.slice = function(_, start, end) {
     if (_.slice) {
         return _.slice(start, end);
-    } else if (typeof _.length === 'number') {
+    } else if (P.isArrayLike(_)) {
         return Array.prototype.slice.call(_, start, end);
     }
     return [ _ ].slice(start, end);
@@ -131,8 +152,12 @@ P.keys = function(_) {
     return keys;
 };
 
-P.prototype.then = function(fn) {
-    return new this.constructor(fn(this._));
+P.prototype.then = function(fulfilled) {
+    return new this.constructor(fulfilled(this._));
+};
+
+P.prototype.fail = function(rejected) {
+    return this.then(null, rejected);
 };
 
 P.prototype.extend = function(source) {
@@ -142,22 +167,22 @@ P.prototype.extend = function(source) {
 };
 
 P.prototype.map = function(fn) {
-    return new this.constructor(P.map(this._, fn));
+    return this.then(function(val) { return P.map(val, fn); });
 };
 
 P.prototype.reduce = function(fn, seed) {
-    return new this.constructor(
-        arguments.length === 2 ? P.reduce(this._, fn, seed)
-                               : P.reduce(this._, fn)
-    );
+    var seeded = arguments.length === 2;
+    return this.then(function(val) {
+        return seeded ? P.reduce(val, fn, seed) : P.reduce(val, fn);
+    });
 };
 
 P.prototype.each = function(fn) {
-    return new this.constructor(P.each(this._, fn));
+    return this.then(function(val) { return P.each(val, fn); });
 };
 
-P.prototype.mapEach = function(fn) {
-    return this.map(fn);
+P.prototype.filter = function(fn) {
+    return this.then(function(val) { return P.filter(val, fn); });
 };
 
 P.prototype.slice = function(start, end) {
@@ -193,41 +218,33 @@ P.prototype.console = function(method, label) {
     });
 };
 
-P.prototype.log = function(label) {
-    return this.console('log', label);
-};
+var consoleMethods = 'log info warn error'.split(' ');
 
-P.prototype.info = function(label) {
-    return this.console('info', label);
-};
+P.each(consoleMethods, function(name) {
+    P.prototype[name] = function(label) {
+        return this.console(name, label);
+    };
+});
 
-P.prototype.warn = function(label) {
-    return this.console('warn', label);
-};
-
-P.prototype.error = function(label) {
-    return this.console('error', label);
+P.prototype.when = function(test, then, else_) {
+    return this.then(function(_) {
+        return (typeof test === 'function' ? test(_)
+                                           : _ === test) ? then  ? then (_) : _
+                                                         : else_ ? else_(_) : _
+                                                         ;
+    });
 };
 
 P.truthy = function(_) { return !!_; };
 P.falsy = function(_) { return !_; };
 P.defined = function(_) { return _ !== void 0; };
 P['undefined'] = function(_) { return _ === void 0; };
-P.any = function(_) { return _ && typeof _.length === 'number' ? _.length > 0 : !!_; };
-P.empty = function(_) { return (_ && _.length === 0) || !_; };
 P.exists = function(_) { return _ !== null && _ !== undefined; };
 P.nothing = function(_) { return _ === null || _ === undefined; };
+P.any = function(_) { return P.isArrayLike(_) ? _.length > 0 : !!_; };
+P.empty = function(_) { return (_ && _.length === 0) || !_; };
 
-P.prototype.when = function(test, then, else_) {
-    return this.then(function(_) {
-        return (typeof test === 'function' ? test(_)
-                                           : _ === test) ?  then ? then (_) : _
-                                                         : else_ ? else_(_) : _
-                                                         ;
-    });
-};
-
-var conditionals = 'truthy falsy defined undefined any empty exists nothing'.split(' ');
+var conditionals = 'truthy falsy defined undefined exists nothing any empty'.split(' ');
 
 P.each(conditionals, function(name) {
     var test = P[name];
@@ -237,11 +254,11 @@ P.each(conditionals, function(name) {
 });
 
 P.prototype.eventually = function() {
-    return new Promise(this._, this);
+    return new Promise(this._);
 };
 
 P.prototype.immediately = function() {
-    return new P(this._, this);
+    return new P(this._);
 };
 
 var Q;
@@ -257,79 +274,33 @@ Promise.prototype = new P();
 
 Promise.prototype.constructor = Promise;
 
-P(Promise.prototype).extend({
+Promise.prototype.then = function(fulfilled, rejected, progressed) {
+    return new this.constructor(
+        this._.then(function(val) {
+            return Array.isArray(val) ? Q.all(val) : val;
+        })
+        .then(fulfilled, rejected, progressed)
+    );
+};
 
-    then: function(fulfilled, rejected, progressed) {
-        return new this.constructor(
-            this._.then(function(val) {
-                return Array.isArray(val) ? Q.all(val) : val;
-            })
-            .then(fulfilled, rejected, progressed)
-        );
-    },
-
-    fail: function(rejected) {
-        return new this.constructor(
-            this._.fail(rejected)
-        );
-    },
-
-    map: function(fn) {
-        return new this.constructor(
-            this._.then(function(val) {
-                return P.map(val, function(val) {
-                    return Q.when(val, function(val) {
-                        return fn(val);
-                    });
-                });
-            })
-        );
-    },
-
-    reduce: function(fn, seed) {
-        var seeded = arguments.length === 2;
-        return new this.constructor(
-            this._.then(function(_) {
-                // Since we always pass a seed into P.reduce,
-                // we need to check if the actual seed exists here.
-                if (!seeded) {
-                    if (typeof _.length === 'number') {
-                        if (_.length === 0) {
-                            throw new TypeError('Reduce of empty array with no initial value');
-                        }
-                        seed = _[0];
-                        _ = P.slice(_, 1);
-                    } else {
-                        // Check for undefined and pretend it's empty array?
-                        return _;
-                    }
+Promise.prototype.reduce = function(fn, seed) {
+    var seeded = arguments.length === 2;
+    return this.then(function(val) {
+        return seeded ? Q.when(seed)
+                         .then(function(seed) {
+                            return P.reduce(val, reducer, seed);
+                         })
+                      : P.reduce(val, reducer)
+                      ;
+    });
+    function reducer(previous, current, index, array) {
+        return Q.when(previous)
+                .then(function(previous) {
+                    return fn(previous, current, index, array);
                 }
-                return P.reduce(_, function(promise, current, index) {
-                    return promise.then(function(previous) {
-                        return fn(previous, current, index + (seeded ? 0 : 1));
-                    });
-                }, Q.when(seed));
-            })
         );
-    },
-
-    each: function(fn) {
-        return this.reduce(function(previous, current) {
-            return Q.when(fn(current), function(val) {
-                return current;
-            });
-        }, null); // Seed is ignored, but this allows empty arrays.
-    },
-
-    mapEach: function(fn) {
-        return this.reduce(function(results, current) {
-            return Q.when(fn(current), function(val) {
-                return results.concat(val);
-            });
-        }, []);
     }
-
-});
+};
 
 P.Promise = Promise;
 
