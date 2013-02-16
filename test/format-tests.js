@@ -25,4 +25,8 @@ test('null and undefined output the empty string', function() {
     equal(P.format('{0}', undefined), '');
 });
 
+test('format method', function() {
+    equal(P([ 1, 2 ]).format('{0}={1}')._, '1=2');
+});
+
 })(this);

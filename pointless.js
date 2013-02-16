@@ -173,6 +173,12 @@ P.prototype.fail = function(rejected) {
     return this.then(null, rejected);
 };
 
+P.prototype.format = function(fmt) {
+    return this.then(function(val) {
+        return P.format(fmt, val);
+    });
+};
+
 P.prototype.extend = function(source) {
     return this.then(function(val) {
         return P.extend(val, source);
