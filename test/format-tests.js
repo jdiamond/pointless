@@ -25,6 +25,14 @@ test('null and undefined output the empty string', function() {
     equal(P.format('{0}', undefined), '');
 });
 
+test('array with 0 as first item', function() {
+    equal(P.format('{0}={1}', [ 0, 1 ]), '0=1');
+});
+
+test('automatic partial application', function() {
+    equal(P.format('{0}={1}')([ 1, 2 ]), '1=2');
+});
+
 test('format method', function() {
     equal(P([ 1, 2 ]).format('{0}={1}')._, '1=2');
 });

@@ -38,13 +38,14 @@ P.chain = function() {
 
 var formatRegExp = /\{([^}]+)\}/g;
 
-P.format = function(fmt) {
-    var args = Pointless.slice(arguments, 1);
-    if (args.length === 1) {
-        args = args[0];
+P.format = function(fmt, data) {
+    if (arguments.length === 1) {
+        return P.partial(P.format, fmt);
     }
+    var args = arguments.length > 2 ? P.slice(arguments, 1) : data;
     return fmt.replace(formatRegExp, function(match, key) {
-        var val = args && args[key] || key === '0' && args;
+        var val = key === '0' ? (args && args.length > 0 ? args[0] : data)
+                              : (args && args[key]);
         return P.exists(val) ? val : '';
     });
 };

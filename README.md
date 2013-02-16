@@ -157,6 +157,29 @@ function composition.
     var squareThenIncrement = P.chain(square, increment);
     squareThenIncrement(2); // Equivalent to increment(square(2)) so returns 5
 
+### Formatting
+
+Use `P.format()` like you would use C#'s `string.Format()`:
+
+    var greeting = P.format('Hello, {0}!', person.name);
+
+It also accepts named placeholders when the second argument is an object:
+
+    var greeting = P.format('Hello, {name}!', person);
+
+The second argument can be an array:
+
+    var greeting = P.format('Hello, {0} and {1}', [ person1.name, person2.name ]);
+
+If only one argument is specified, a partially applied function is returned:
+
+    var greeter = P.format('Hello, {name}!');
+    var greeting = greeter(person);
+
+When used as a method on Pointless objects, the current value is the data:
+
+    var greeting = P(person).format('Hello, {name}!');
+
 ### then(fn)
 
 Pointless objects have a `.then()` method that takes in a function
