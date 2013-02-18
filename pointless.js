@@ -15,6 +15,17 @@ function Pointless(val) {
     this._ = val;
 }
 
+P.value = function(_) {
+    return _;
+};
+
+P.get = function(key, _) {
+    if (arguments.length === 1) {
+        return P.partial(P.get, key);
+    }
+    return _ && _[key];
+};
+
 P.partial = function(fn) {
     var left = P.slice(arguments, 1);
     return function() {
@@ -64,6 +75,15 @@ P.isArrayLike = function(_) {
 };
 
 P.map = function(_, fn) {
+    if (typeof fn === 'object') {
+        return P.map(_, function(val) {
+            var obj = {};
+            P(fn).keys().each(function(key) {
+                obj[key] = fn[key](val);
+            });
+            return obj;
+        });
+    }
     var result;
     if (_.map) {
         result = _.map(fn);

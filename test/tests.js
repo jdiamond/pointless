@@ -32,6 +32,19 @@ test('map array-like of numbers', function() {
     deepEqual(P(arrayLike(1, 2)).map(add1)._, [ 2, 3 ]);
 });
 
+test('map array of objects with object', function() {
+    deepEqual(P([
+        { a: 1, b: 2 },
+        { a: 3, b: 4 }
+    ]).map({
+        x: P.get('a'),
+        y: P.chain(P.get('b'), add1)
+    })._, [
+        { x: 1, y: 3 },
+        { x: 3, y: 5 }
+    ]);
+});
+
 test('reduce number with seed', function() {
     equal(P(12).reduce(add, 1)._, 13);
 });
