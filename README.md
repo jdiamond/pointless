@@ -29,21 +29,40 @@ the Pointless object's `_` property:
 
 That example may seem pointless (it is!), but you won't normally use
 the `_` property. Pointless objects provide many methods for
-manipulating their values and returning new Pointless objects.
+manipulating their values and returning new Pointless objects. Here's
+a more involved example:
 
     P(document.querySelectorAll('#form input'))
-    .map(function(input) { return input.name + '=' + input.value; })
+    .filter(P.get('name'))
+    .map(P.format('{name}={value}'))
     .join('&')
-    .then(function(values) {
-        // Do Ajax with values...
+    .then(function(qs) {
+        // Do Ajax with query string...
     });
 
-Many of the methods available on Pointless objects are also available
-as "static" methods on the `P` function. These methods take in an
-unwrapped value as their first argument and return an unwrapped
-value. They are meant for quick application of a single Pointless
-method. To apply more than one Pointless method to a value, consider
-chaining off a Pointless object instead.
+Many of the methods available on Pointless objects are also available as
+"static" methods on the `P` function. You can see two of them in the previous
+example. These methods take in an unwrapped value and return an unwrapped
+value. They are meant for quick application of a single Pointless method. To
+apply more than one Pointless method to a value, consider chaining off a
+Pointless object instead.
+
+Many of the static methods also support automatic partial application. For
+example, the calls to `P.get()` and `P.format()` with just one argument  in
+the previous example returned new functions that takes the value to read from
+or to format. The more traditional way to write that would look like this:
+
+    P(document.querySelectorAll('#form input'))
+    .filter(function(input) {
+        return input.name;
+    })
+    .map(function(input) {
+        return P.format('{name}={value}', input);
+    })
+    .join('&')
+    .then(function(qs) {
+        // Do Ajax with query string...
+    });
 
 ### map(fn)
 
