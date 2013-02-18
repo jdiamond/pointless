@@ -107,14 +107,16 @@ P.map = function(_, fn) {
     }
     var result;
     if (_.map) {
-        result = _.map(fn);
+        result = _.map(function(_) {
+            return fn(_);
+        });
     } else if (P.isArrayLike(_)) {
         result = [];
         for (var i = 0, n = _.length; i < n; i++) {
-            result.push(fn(_[i], i, _));
+            result.push(fn(_[i]));
         }
     } else {
-        result = fn(_, 0, [ _ ]);
+        result = fn(_);
     }
     return result;
 };
@@ -123,7 +125,10 @@ P.reduce = function(_, fn, seed) {
     var result;
     var seeded = arguments.length >= 3;
     if (_.reduce) {
-        result = seeded ? _.reduce(fn, seed) : _.reduce(fn);
+        var ignoreIndex = function(previous, current) {
+            return fn(previous, current);
+        };
+        result = seeded ? _.reduce(ignoreIndex, seed) : _.reduce(ignoreIndex);
     } else if (P.isArrayLike(_)) {
         var i = 0;
         if (seeded) {
@@ -136,11 +141,11 @@ P.reduce = function(_, fn, seed) {
             result = _[0];
         }
         for (var n = _.length; i < n; i++) {
-            result = fn(result, _[i], i, _);
+            result = fn(result, _[i]);
         }
     } else {
         if (seeded) {
-            result = fn(seed, _, 0, [ _ ]);
+            result = fn(seed, _);
         } else {
             result = _;
         }
@@ -354,10 +359,10 @@ Promise.prototype.reduce = function(fn, seed) {
                       : P.reduce(val, reducer)
                       ;
     });
-    function reducer(previous, current, index, array) {
+    function reducer(previous, current) {
         return Q.when(previous)
                 .then(function(previous) {
-                    return fn(previous, current, index, array);
+                    return fn(previous, current);
                 }
         );
     }

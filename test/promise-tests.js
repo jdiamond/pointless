@@ -71,7 +71,7 @@ asyncTest('reduce number with seed', function() {
     .then(function(result) {
         equal(result, 13);
         equal(addSpy.callCount, 1);
-        deepEqual(addSpy.getCall(0).args, [ 1, 12, 0, [ 12 ] ]);
+        deepEqual(addSpy.getCall(0).args, [ 1, 12 ]);
         start();
     });
 });
@@ -96,8 +96,8 @@ asyncTest('reduce array of numbers with seed', function() {
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 2);
-        deepEqual(addSpy.getCall(0).args, [ 0, 1, 0, [ 1, 2 ] ]);
-        deepEqual(addSpy.getCall(1).args, [ 1, 2, 1, [ 1, 2 ] ]);
+        deepEqual(addSpy.getCall(0).args, [ 0, 1 ]);
+        deepEqual(addSpy.getCall(1).args, [ 1, 2 ]);
         start();
     });
 });
@@ -110,7 +110,7 @@ asyncTest('reduce array of numbers without seed', function() {
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 1);
-        deepEqual(addSpy.getCall(0).args, [ 1, 2, 1, [ 1, 2 ] ]);
+        deepEqual(addSpy.getCall(0).args, [ 1, 2 ]);
         start();
     });
 });
@@ -179,8 +179,8 @@ asyncTest('reduce array of numbers with seed and reducer returning promise', fun
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 2);
-        deepEqual(addSpy.getCall(0).args, [ 0, 1, 0, [ 1, 2 ] ]);
-        deepEqual(addSpy.getCall(1).args, [ 1, 2, 1, [ 1, 2 ] ]);
+        deepEqual(addSpy.getCall(0).args, [ 0, 1 ]);
+        deepEqual(addSpy.getCall(1).args, [ 1, 2 ]);
         start();
     });
 });
@@ -193,7 +193,7 @@ asyncTest('reduce array of numbers without seed and reducer returning promise', 
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 1);
-        deepEqual(addSpy.getCall(0).args, [ 1, 2, 1, [ 1, 2 ] ]);
+        deepEqual(addSpy.getCall(0).args, [ 1, 2 ]);
         start();
     });
 });
