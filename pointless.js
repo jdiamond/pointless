@@ -15,16 +15,37 @@ function Pointless(val) {
     this._ = val;
 }
 
+P.unary = function(fn) {
+    return function(value) {
+        if (arguments.length === 0) {
+            return P.unary(fn);
+        }
+        return fn.call(this, value);
+    };
+};
+
+P.binary = function(fn) {
+    return function(value1, value2) {
+        switch (arguments.length) {
+            case 0:
+                return P.binary(fn);
+            case 1:
+                return P.unary(function(value2) {
+                    return fn.call(this, value1, value2);
+                });
+            default:
+                return fn.call(this, value1, value2);
+        }
+    };
+};
+
 P.value = function(_) {
     return _;
 };
 
-P.get = function(key, _) {
-    if (arguments.length === 1) {
-        return P.partial(P.get, key);
-    }
+P.get = P.binary(function(key, _) {
     return _ && _[key];
-};
+});
 
 P.partial = function(fn) {
     var left = P.slice(arguments, 1);

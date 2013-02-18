@@ -4,6 +4,27 @@
 
 QUnit.module('functions');
 
+test('unary', function() {
+    var add1 = P.unary(function(value) {
+        return value + 1;
+    });
+
+    var anotherAdd1 = add1();
+
+    strictEqual(anotherAdd1(2), 3);
+});
+
+test('binary', function() {
+    var add = P.binary(function(value1, value2) {
+        return value1 + value2;
+    });
+
+    var anotherAdd = add();
+    var addTo1 = anotherAdd(1);
+
+    strictEqual(addTo1(2), 3);
+});
+
 test('partial', function() {
     var fn = P.partial(joinAll, ', ', 1, 2);
 
