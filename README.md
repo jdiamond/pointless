@@ -15,6 +15,7 @@ Pointless is inspired by:
   - Underscore
   - @raganwald
   - @domenic
+  - http://www.slideshare.net/drboolean/pointfree-functional-programming-in-javascript
 
 API
 ---
