@@ -25,6 +25,19 @@ test('binary', function() {
     strictEqual(addTo1(2), 3);
 });
 
+test('nary', function() {
+    var add3 = P.nary(3, function(value1, value2, value3) {
+        return value1 + value2 + value3;
+    });
+
+    var anotherAdd3 = add3();
+    var addTo1 = anotherAdd3(1);
+    var addTo1And2 = addTo1(2);
+    var anotherAddTo1And2 = addTo1And2();
+
+    strictEqual(anotherAddTo1And2(3), 6);
+});
+
 test('partial', function() {
     var fn = P.partial(joinAll, ', ', 1, 2);
 

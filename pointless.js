@@ -39,6 +39,16 @@ P.binary = function(fn) {
     };
 };
 
+P.nary = function(n, fn) {
+    return function() {
+        if (arguments.length < n) {
+            return P.nary(n - arguments.length,
+                P.partial.apply(P, [ fn ].concat(P.slice(arguments))));
+        }
+        return fn.apply(this, P.slice(arguments));
+    };
+};
+
 P.value = function(_) {
     return _;
 };
