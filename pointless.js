@@ -43,9 +43,9 @@ P.nary = function(n, fn) {
     return function() {
         if (arguments.length < n) {
             return P.nary(n - arguments.length,
-                P.partial.apply(P, [ fn ].concat(P.slice(arguments))));
+                P.partial.apply(P, [ fn ].concat(P.toArray(arguments))));
         }
-        return fn.apply(this, P.slice(arguments));
+        return fn.apply(this, P.toArray(arguments));
     };
 };
 
@@ -58,21 +58,21 @@ P.get = P.binary(function(key, _) {
 });
 
 P.partial = function(fn) {
-    var left = P.slice(arguments, 1);
+    var left = P.skip(1, arguments);
     return function() {
-        return fn.apply(this, left.concat(P.slice(arguments)));
+        return fn.apply(this, left.concat(P.toArray(arguments)));
     };
 };
 
 P.partialRight = function(fn) {
-    var right = P.slice(arguments, 1);
+    var right = P.skip(1, arguments);
     return function() {
-        return fn.apply(this, P.slice(arguments).concat(right));
+        return fn.apply(this, P.toArray(arguments).concat(right));
     };
 };
 
 P.chain = function() {
-    var fns = P.slice(arguments);
+    var fns = P.toArray(arguments);
     return function(value) {
         return fns.reduce(function(p, c) { return c(p); }, value);
     };
@@ -84,7 +84,7 @@ P.format = function(fmt, data) {
     if (arguments.length === 1) {
         return P.partial(P.format, fmt);
     }
-    var args = arguments.length > 2 ? P.slice(arguments, 1) : data;
+    var args = arguments.length > 2 ? P.skip(1, arguments) : data;
     return fmt.replace(formatRegExp, function(match, key) {
         var val = key === '0' ? (args && args.length > 0 ? args[0] : data)
                               : (args && args[key]);
@@ -103,6 +103,10 @@ P.extend = function(target, source) {
 
 P.isArrayLike = function(_) {
     return _ && typeof _.length === 'number';
+};
+
+P.toArray = function(_) {
+    return P.isArrayLike(_) ? Array.prototype.slice.call(_) : [ _ ];
 };
 
 P.map = P.binary(function(fn, _) {
@@ -172,7 +176,7 @@ P.inject = P.nary(3, function(fn, seed, _) {
     return result;
 });
 
-P.each = function(_, fn) {
+P.each = function(fn, _) {
     if (_.forEach) {
         _.forEach(fn);
     } else if (P.isArrayLike(_)) {
@@ -185,7 +189,7 @@ P.each = function(_, fn) {
     return _;
 };
 
-P.filter = function(_, fn) {
+P.filter = function(fn, _) {
     var result;
     if (_.filter) {
         result = _.filter(fn);
@@ -202,7 +206,7 @@ P.filter = function(_, fn) {
     return result;
 };
 
-P.slice = function(_, start, end) {
+P.slice = function(start, end, _) {
     if (_.slice) {
         return _.slice(start, end);
     } else if (P.isArrayLike(_)) {
@@ -211,7 +215,11 @@ P.slice = function(_, start, end) {
     return [ _ ].slice(start, end);
 };
 
-P.join = function(_, separator) {
+P.skip = function(count, _) {
+    return P.toArray(_).slice(count);
+};
+
+P.join = function(separator, _) {
     if (_.join) {
         return _.join(separator);
     }
@@ -268,22 +276,22 @@ P.prototype.inject = function(fn, seed) {
 };
 
 P.prototype.each = function(fn) {
-    return this.then(function(val) { return P.each(val, fn); });
+    return this.then(function(val) { return P.each(fn, val); });
 };
 
 P.prototype.filter = function(fn) {
-    return this.then(function(val) { return P.filter(val, fn); });
+    return this.then(function(val) { return P.filter(fn, val); });
 };
 
 P.prototype.slice = function(start, end) {
     return this.then(function(_) {
-        return P.slice(_, start, end);
+        return P.slice(start, end, _);
     });
 };
 
 P.prototype.join = function(separator) {
     return this.then(function(_) {
-        return P.join(_, separator);
+        return P.join(separator, _);
     });
 };
 
@@ -310,11 +318,11 @@ P.prototype.console = function(method, label) {
 
 var consoleMethods = 'log info warn error'.split(' ');
 
-P.each(consoleMethods, function(name) {
+P.each(function(name) {
     P.prototype[name] = function(label) {
         return this.console(name, label);
     };
-});
+}, consoleMethods);
 
 P.prototype.when = function(test, then, else_) {
     return this.then(function(_) {
@@ -336,12 +344,12 @@ P.empty = function(_) { return (_ && _.length === 0) || !_; };
 
 var conditionals = 'truthy falsy defined undefined exists nothing any empty'.split(' ');
 
-P.each(conditionals, function(name) {
+P.each(function(name) {
     var test = P[name];
     P.prototype[name] = function(then, else_) {
         return this.when(test, then, else_);
     };
-});
+}, conditionals);
 
 P.prototype.eventually = function() {
     return new Promise(this._);

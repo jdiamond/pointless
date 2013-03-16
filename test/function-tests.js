@@ -63,7 +63,7 @@ test('chain', function() {
 });
 
 function joinAll(separator) {
-    return P.join(P.slice(arguments, 1), separator);
+    return P.join(separator, P.skip(1, arguments));
 }
 
 function add1(value) { return value + 1; }
