@@ -1,3 +1,5 @@
+/*jshint es5:true*/
+
 (function(root) {
 
 QUnit.module('basic');
@@ -30,6 +32,11 @@ test('map array of numbers', function() {
 
 test('map array-like of numbers', function() {
     deepEqual(P(arrayLike(1, 2)).map(add1)._, [ 2, 3 ]);
+});
+
+test('map returns partial', function() {
+    var fn = P.map(add1);
+    deepEqual(fn([ 1, 2 ]), [ 2, 3 ]);
 });
 
 test('map array of objects with object', function() {

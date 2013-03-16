@@ -95,15 +95,15 @@ P.isArrayLike = function(_) {
     return _ && typeof _.length === 'number';
 };
 
-P.map = function(_, fn) {
+P.map = P.binary(function(fn, _) {
     if (typeof fn === 'object') {
-        return P.map(_, function(val) {
+        return P.map(function(val) {
             var obj = {};
             P(fn).keys().each(function(key) {
                 obj[key] = fn[key](val);
             });
             return obj;
-        });
+        }, _);
     }
     var result;
     if (_.map) {
@@ -119,7 +119,7 @@ P.map = function(_, fn) {
         result = fn(_);
     }
     return result;
-};
+});
 
 P.reduce = function(_, fn, seed) {
     var result;
@@ -233,7 +233,7 @@ P.prototype.extend = function(source) {
 };
 
 P.prototype.map = function(fn) {
-    return this.then(function(val) { return P.map(val, fn); });
+    return this.then(function(_) { return P.map(fn, _); });
 };
 
 P.prototype.reduce = function(fn, seed) {
