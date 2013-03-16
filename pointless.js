@@ -131,37 +131,46 @@ P.map = P.binary(function(fn, _) {
     return result;
 });
 
-P.reduce = function(_, fn, seed) {
+var reduceError = 'Reduce of empty array with no initial value';
+
+P.reduce = P.binary(function(fn, _) {
     var result;
-    var seeded = arguments.length >= 3;
     if (_.reduce) {
-        var ignoreIndex = function(previous, current) {
+        result = _.reduce(function(previous, current) {
             return fn(previous, current);
-        };
-        result = seeded ? _.reduce(ignoreIndex, seed) : _.reduce(ignoreIndex);
+        });
     } else if (P.isArrayLike(_)) {
-        var i = 0;
-        if (seeded) {
-            result = seed;
-        } else {
-            if (_.length === 0) {
-                throw new TypeError('Reduce of empty array with no initial value');
-            }
-            i = 1;
-            result = _[0];
+        if (_.length === 0) {
+            throw new TypeError(reduceError);
         }
+        var i = 1;
+        result = _[0];
         for (var n = _.length; i < n; i++) {
             result = fn(result, _[i]);
         }
     } else {
-        if (seeded) {
-            result = fn(seed, _);
-        } else {
-            result = _;
-        }
+        result = _;
     }
     return result;
-};
+});
+
+P.inject = P.nary(3, function(fn, seed, _) {
+    var result;
+    if (_.inject) {
+        result = _.inject(function(previous, current) {
+            return fn(previous, current);
+        }, seed);
+    } else if (P.isArrayLike(_)) {
+        var i = 0;
+        result = seed;
+        for (var n = _.length; i < n; i++) {
+            result = fn(result, _[i]);
+        }
+    } else {
+        result = fn(seed, _);
+    }
+    return result;
+});
 
 P.each = function(_, fn) {
     if (_.forEach) {
@@ -246,10 +255,15 @@ P.prototype.map = function(fn) {
     return this.then(function(_) { return P.map(fn, _); });
 };
 
-P.prototype.reduce = function(fn, seed) {
-    var seeded = arguments.length === 2;
+P.prototype.reduce = function(fn) {
     return this.then(function(val) {
-        return seeded ? P.reduce(val, fn, seed) : P.reduce(val, fn);
+        return P.reduce(fn, val);
+    });
+};
+
+P.prototype.inject = function(fn, seed) {
+    return this.then(function(val) {
+        return P.inject(fn, seed, val);
     });
 };
 
@@ -359,23 +373,29 @@ Promise.prototype.then = function(fulfilled, rejected, progressed) {
     );
 };
 
-Promise.prototype.reduce = function(fn, seed) {
-    var seeded = arguments.length === 2;
+Promise.prototype.reduce = function(fn) {
     return this.then(function(val) {
-        return seeded ? Q.when(seed)
-                         .then(function(seed) {
-                            return P.reduce(val, reducer, seed);
-                         })
-                      : P.reduce(val, reducer)
-                      ;
+        return P.reduce(function reducer(previous, current) {
+            return Q.when(previous)
+                    .then(function(previous) {
+                        return fn(previous, current);
+                    });
+        }, val);
     });
-    function reducer(previous, current) {
-        return Q.when(previous)
-                .then(function(previous) {
-                    return fn(previous, current);
-                }
-        );
-    }
+};
+
+Promise.prototype.inject = function(fn, seed) {
+    return this.then(function(val) {
+        return Q.when(seed)
+                .then(function(seed) {
+                    return P.inject(function(previous, current) {
+                        return Q.when(previous)
+                                .then(function(previous) {
+                                    return fn(previous, current);
+                                });
+                    }, seed, val);
+                });
+    });
 };
 
 P.Promise = Promise;

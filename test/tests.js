@@ -52,36 +52,47 @@ test('map array of objects with object', function() {
     ]);
 });
 
-test('reduce number with seed', function() {
-    equal(P(12).reduce(add, 1)._, 13);
-});
-
-test('reduce number without seed', function() {
+test('reduce number', function() {
     equal(P(12).reduce(add)._, 12);
 });
 
 test('reduce array of numbers', function() {
-    equal(P([ 1, 2 ]).reduce(add, 0)._, 3);
-});
-
-test('reduce array of numbers with no initial value', function() {
     equal(P([ 1, 2 ]).reduce(add)._, 3);
 });
 
-test('reduce empty array with no initial value', function() {
+test('reduce empty array', function() {
     throws(function() { P([]).reduce(add); }, TypeError);
 });
 
 test('reduce array-like of numbers', function() {
-    equal(P(arrayLike(1, 2)).reduce(add, 0)._, 3);
-});
-
-test('reduce array-like of numbers with no initial value', function() {
     equal(P(arrayLike(1, 2)).reduce(add)._, 3);
 });
 
-test('reduce empty array-like with no initial value', function() {
+test('reduce empty array-like', function() {
     throws(function() { P(arrayLike()).reduce(add); }, TypeError);
+});
+
+test('reduce returns partial', function() {
+    var adder = P.reduce(add);
+    equal(adder([ 1, 2 ]), 3);
+});
+
+test('inject number with seed', function() {
+    equal(P(12).inject(add, 1)._, 13);
+});
+
+test('inject array of numbers', function() {
+    equal(P([ 1, 2 ]).inject(add, 0)._, 3);
+});
+
+test('inject array-like of numbers', function() {
+    equal(P(arrayLike(1, 2)).inject(add, 0)._, 3);
+});
+
+test('inject returns partial', function() {
+    var adder = P.inject(add);
+    var adderTo3 = adder(3);
+    equal(adderTo3([ 1, 2 ]), 6);
 });
 
 test('each number', function() {

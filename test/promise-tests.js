@@ -63,11 +63,81 @@ asyncTest('mixed map test', function() {
     deferredNumber.resolve(2);
 });
 
-asyncTest('reduce number with seed', function() {
+asyncTest('reduce number', function() {
     var addSpy = sinon.spy(add);
     P(12)
     .eventually()
-    .reduce(addSpy, 1)
+    .reduce(addSpy)
+    .then(function(result) {
+        equal(result, 12);
+        equal(addSpy.callCount, 0);
+        start();
+    });
+});
+
+asyncTest('reduce array of numbers', function() {
+    var addSpy = sinon.spy(add);
+    P([ 1, 2 ])
+    .eventually()
+    .reduce(addSpy)
+    .then(function(result) {
+        equal(result, 3);
+        equal(addSpy.callCount, 1);
+        deepEqual(addSpy.getCall(0).args, [ 1, 2 ]);
+        start();
+    });
+});
+
+asyncTest('reduce empty array', function() {
+    var addSpy = sinon.spy(add);
+    P([])
+    .eventually()
+    .reduce(addSpy)
+    .then(function(result) {
+        ok(false);
+        start();
+    })
+    .fail(function(error) {
+        ok(error instanceof TypeError);
+        equal(addSpy.callCount, 0);
+        start();
+    });
+});
+
+asyncTest('reduce empty array-like', function() {
+    var addSpy = sinon.spy(add);
+    P(arrayLike())
+    .eventually()
+    .reduce(addSpy)
+    .then(function(result) {
+        ok(false);
+        start();
+    })
+    .fail(function(error) {
+        ok(error instanceof TypeError);
+        equal(addSpy.callCount, 0);
+        start();
+    });
+});
+
+asyncTest('reduce array of numbers with function returning promise', function() {
+    var addSpy = sinon.spy(eventuallyAdd);
+    P([ 1, 2 ])
+    .eventually()
+    .reduce(addSpy)
+    .then(function(result) {
+        equal(result, 3);
+        equal(addSpy.callCount, 1);
+        deepEqual(addSpy.getCall(0).args, [ 1, 2 ]);
+        start();
+    });
+});
+
+asyncTest('inject number', function() {
+    var addSpy = sinon.spy(add);
+    P(12)
+    .eventually()
+    .inject(addSpy, 1)
     .then(function(result) {
         equal(result, 13);
         equal(addSpy.callCount, 1);
@@ -76,23 +146,11 @@ asyncTest('reduce number with seed', function() {
     });
 });
 
-asyncTest('reduce number without seed', function() {
-    var addSpy = sinon.spy(add);
-    P(12)
-    .eventually()
-    .reduce(addSpy)
-    .then(function(result) {
-        equal(result, 12);
-        equal(addSpy.callCount, 0);
-        start();
-    });
-});
-
-asyncTest('reduce array of numbers with seed', function() {
+asyncTest('inject array of numbers', function() {
     var addSpy = sinon.spy(add);
     P([ 1, 2 ])
     .eventually()
-    .reduce(addSpy, 0)
+    .inject(addSpy, 0)
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 2);
@@ -102,24 +160,11 @@ asyncTest('reduce array of numbers with seed', function() {
     });
 });
 
-asyncTest('reduce array of numbers without seed', function() {
-    var addSpy = sinon.spy(add);
-    P([ 1, 2 ])
-    .eventually()
-    .reduce(addSpy)
-    .then(function(result) {
-        equal(result, 3);
-        equal(addSpy.callCount, 1);
-        deepEqual(addSpy.getCall(0).args, [ 1, 2 ]);
-        start();
-    });
-});
-
-asyncTest('reduce empty array with seed', function() {
+asyncTest('inject empty array', function() {
     var addSpy = sinon.spy(add);
     P([])
     .eventually()
-    .reduce(addSpy, 12)
+    .inject(addSpy, 12)
     .then(function(result) {
         equal(result, 12);
         equal(addSpy.callCount, 0);
@@ -127,27 +172,11 @@ asyncTest('reduce empty array with seed', function() {
     });
 });
 
-asyncTest('reduce empty array without seed', function() {
-    var addSpy = sinon.spy(add);
-    P([])
-    .eventually()
-    .reduce(addSpy)
-    .then(function(result) {
-        ok(false);
-        start();
-    })
-    .fail(function(error) {
-        ok(error instanceof TypeError);
-        equal(addSpy.callCount, 0);
-        start();
-    });
-});
-
-asyncTest('reduce empty array-like with seed', function() {
+asyncTest('inject empty array-like', function() {
     var addSpy = sinon.spy(add);
     P(arrayLike())
     .eventually()
-    .reduce(addSpy, 12)
+    .inject(addSpy, 12)
     .then(function(result) {
         equal(result, 12);
         equal(addSpy.callCount, 0);
@@ -155,45 +184,16 @@ asyncTest('reduce empty array-like with seed', function() {
     });
 });
 
-asyncTest('reduce empty array-like without seed', function() {
-    var addSpy = sinon.spy(add);
-    P(arrayLike())
-    .eventually()
-    .reduce(addSpy)
-    .then(function(result) {
-        ok(false);
-        start();
-    })
-    .fail(function(error) {
-        ok(error instanceof TypeError);
-        equal(addSpy.callCount, 0);
-        start();
-    });
-});
-
-asyncTest('reduce array of numbers with seed and reducer returning promise', function() {
+asyncTest('inject array of numbers with function returning promise', function() {
     var addSpy = sinon.spy(eventuallyAdd);
     P([ 1, 2 ])
     .eventually()
-    .reduce(addSpy, 0)
+    .inject(addSpy, 0)
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 2);
         deepEqual(addSpy.getCall(0).args, [ 0, 1 ]);
         deepEqual(addSpy.getCall(1).args, [ 1, 2 ]);
-        start();
-    });
-});
-
-asyncTest('reduce array of numbers without seed and reducer returning promise', function() {
-    var addSpy = sinon.spy(eventuallyAdd);
-    P([ 1, 2 ])
-    .eventually()
-    .reduce(addSpy)
-    .then(function(result) {
-        equal(result, 3);
-        equal(addSpy.callCount, 1);
-        deepEqual(addSpy.getCall(0).args, [ 1, 2 ]);
         start();
     });
 });
