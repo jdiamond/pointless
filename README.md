@@ -1,13 +1,10 @@
 Pointless.js
 ============
 
-Pointless is a library for working with values, arrays, objects,
-functions, and promises with a uniform interface and in a point-free style.
+Pointless is a library for working with values, arrays, objects, functions,
+and promises all with a uniform interface and in a point-free style.
 
 It works in the browser (with or without AMD) and as a Node.js module.
-
-Pointless does not provide any facilities for working with the DOM,
-but can be extended to do so via plugins.
 
 Pointless is inspired by:
 
@@ -17,20 +14,21 @@ Pointless is inspired by:
   - @domenic
   - http://www.slideshare.net/drboolean/pointfree-functional-programming-in-javascript
 
-API
----
+Introduction
+------------
 
 `P` is the main function. It returns a Pointless object.
 
-Pointless objects wrap values. The original value is accessible via
-the Pointless object's `_` property:
+Pointless objects wrap values. The original value is accessible via the `_`
+property:
 
-    equal( P(42)._, 42 );
+    P(42)._ // 42
 
-That example may seem pointless (it is!), but you won't normally use
-the `_` property. Pointless objects provide many methods for
-manipulating their values and returning new Pointless objects. Here's
-a more involved example:
+That example may seem pointless (it is!), but you would normally use one or
+more methods on the Pointless object before accessing its value.
+
+Pointless objects provide many methods for manipulating their values and
+returning new Pointless objects. Here's a more involved example:
 
     P(document.querySelectorAll('#form input'))
     .filter(P.get('name'))
@@ -40,6 +38,10 @@ a more involved example:
         // Do Ajax with query string...
     });
 
+When you're done chaining method calls, you can use the `_` property to access
+the final result or the `.then()` method (which is supposed to be reminiscient
+of the Promises/A specification) as in the above example.
+
 Many of the methods available on Pointless objects are also available as
 "static" methods on the `P` function. You can see two of them in the previous
 example. These methods take in an unwrapped value and return an unwrapped
@@ -48,9 +50,9 @@ apply more than one Pointless method to a value, consider chaining off a
 Pointless object instead.
 
 Many of the static methods also support automatic partial application. For
-example, the calls to `P.get()` and `P.format()` with just one argument  in
-the previous example returned new functions that takes the value to read from
-or to format. The more traditional way to write that would look like this:
+example, the calls to `P.get()` and `P.format()` with just one argument in the
+previous example returned new functions that takes the value to read from or
+to format. The more traditional way to write that might look like this:
 
     P(document.querySelectorAll('#form input'))
     .filter(function(input) {
@@ -64,54 +66,138 @@ or to format. The more traditional way to write that would look like this:
         // Do Ajax with query string...
     });
 
-### map(fn)
+The point of Pointless is to enable programming in a point-free style. If you
+find yourself writing function expressions as above, you may be able to
+discover a way to remove them by exploring the API.
 
-    deepEqual( P([ 1, 2 ]).map(add1)._, [ 2, 3 ] );
+Pointless may seem familiar to the popular Underscore and Lo-Dash libraries
+and it is. Many of the functions in Pointless accept their arguments in
+reverse when compared to these libraries. This is done on purpose to make the
+automatic partial application more convenient.
 
-    function add1(val) { return val + 1; }
+API
+---
 
-### reduce(fn, [seed])
+For each of the following methods, an examples are shown using Pointless
+object methods and "static" methods, when available. If the static method can
+be partially applied, that will be indicated with an example, too.
 
-    equal( P([ 1, 2 ]).reduce(add)._, 3 );
+Comments at the end of lines in the following examples indicate the results.
+Results that look like `[ 1, 2 ]` are normal arrays. Results that look like
+`P([ 1, 2 ])` are Pointless objects wrapping an array. You can invoke more
+methods on those objects or access their values with either the `_` property
+or `.then()` method.
 
-    function add(a, b) { return a + b; }
+### map
 
-### each(fn)
+Maps (tranforms) each value into new values. The callback function does _not_
+receive an index argument.
+    
+    P([ 1, 2 ]).map(add1) // P([ 2, 3 ])
 
-    deepEqual( P([ 1, 2 ]).each(add1)._, [ 1, 2 ] );
+    P.map(add1, [ 1, 2 ]) // [ 2, 3 ]
 
-    function add1(val) { return val + 1; }
+    P.map(add1)([ 1, 2 ]) // [ 2, 3 ]
 
-### slice(start, end)
+### reduce
 
-Like `Array.prototype.slice()`, but works with array-like objects.
+Reduces values to a single value. The callback function receives the previous
+and current values, but does _not_ receive an index argument. Empty arrays
+result in a `TypeError`.
 
-    deepEqual( P([ 1, 2, 3, 4 ]).slice(1, 3)._, [ 2, 3 ] );
+    P([ 1, 2 ]).reduce(add) // P(3)
 
-### join(separator)
+    P.reduce(add, [ 1, 2 ]) // 3
 
-Like `Array.prototype.join()`, but works with array-like objects.
+    P.reduce(add)([ 1, 2 ]) // 3
 
-    equal( P([ 1, 2 ]).join(', ')._, '1, 2' );
+### inject
 
-### keys()
+Reduces values to a single value, starting with a seed value. The callback
+function receives the previous and current values, but does _not_ receive an
+index argument.
 
-Like `Object.keys()`, but works when `Object.keys` isn't defined.
+    P([ 1, 2 ]).inject(add, 3) // P(6)
 
-### tap(fn)
+    P.inject(add, 3, [ 1, 2 ]) // 6
 
-Invokes `fn` with the current value and then returns the current
-Pointless object.
+    P.inject(add)(3, [ 1, 2 ]) // 6
 
-### console(method, [label])
+    P.inject(add)(3)([ 1, 2 ]) // 6
+
+### filter
+
+Removes values that don't result in true when applied to the callback
+function.
+
+    P([ 1, 2, 3 ]).filter(isOdd) // P([ 1, 3 ])
+
+    P.filter(isOdd, [ 1, 2, 3 ]) // [ 1, 3 ]
+
+    P.filter(isOdd)([ 1, 2, 3 ]) // [ 1, 3 ]
+    
+### each
+
+Iterates over each value and passes it into the callback function. The
+callback function does _not_ receive an index argument.
+
+    P([ 1, 2 ]).each(log) // P([ 1, 2 ]) and logs each value
+
+    P.each(log, [ 1, 2 ]) // [ 1, 2 ] and logs each value
+
+    P.each(log)([ 1, 2 ]) // [ 1, 2 ] and logs each value
+
+### slice
+
+Like `Array.prototype.slice`, but works with array-like objects. Both `start`
+and `end` arguments are required, but you can pass in `undefined` for `end` to
+slice from `start` to the end of the array.
+
+    P([ 1, 2, 3, 4 ].slice(1, 2) // P([ 2, 3 ])
+
+    P.slice(1, 2, [ 1, 2, 3, 4 ]) // [ 2, 3 ]
+
+    P.slice(1, undefined, [ 1, 2, 3, 4 ]) // [ 2, 3, 4 ]
+
+### join
+
+Like `Array.prototype.join`, but works with array-like objects.
+
+    P([ 1, 2 ]).join(',') // P('1, 2')
+
+    P.join(',', [ 1, 2 ]) // '1, 2'
+
+### keys
+
+Like `Object.keys()`, but works even when `Object.keys` isn't defined.
+
+    P({ a: 1, b: 2 }).keys() // P([ 'a', 'b' ]) or P([ 'b', 'a' ])
+
+    P.keys({ a: 1, b: 2 }) // [ 'a', 'b' ] or [ 'b', 'a' ]
+
+JavaScript does not guarantee the order in which an object's keys are returned
+so don't rely on it.
+
+### tap
+
+Invokes the callback function with the current value and then returns the
+current Pointless object. This is meant mostly for debugging purposes.
+
+    P([ 1, 2 ]).tap(log) // P([ 1, 2 ]) and logs the array
+
+Unfortunately, not all browsers allow `console.log` to be invoked as an
+unbound function. Use the `.console`, `.log`, or similar methods for that.
+
+### console
 
 Invokes `method` on `console` with the current value. If `label` is
 defined, `': '` is appended to it, and then that's used as a prefix.
 
-### log([label]), info([label]), warn([label]), error([label])
+    P([ 1, 2 ]).console('log', 'foo') // P([ 1, 2 ]) and logs "foo: 1, 2"
 
-Logs (via `console.log`, etc) the current value with an optional
-label.
+For convenience, `log`, `info`, `warn`, and `error` methods also exist:
+
+    P([ 1, 2 ]).log('foo') // P([ 1, 2 ]) and logs "foo: 1, 2"
 
 ### Conditional Functions
 
@@ -126,7 +212,7 @@ The following functions take in a value and return a boolean:
 - P.exists(val) - true when not `null` or `undefined`
 - P.nothing(val) - true when `null` or `undefined`
 
-### when(test, then, else)
+### when
 
 Tests the current value and then executes one of the two functions.
 
@@ -200,7 +286,7 @@ When used as a method on Pointless objects, the current value is the data:
 
     var greeting = P(person).format('Hello, {name}!');
 
-### then(fn)
+### then
 
 Pointless objects have a `.then()` method that takes in a function
 and invokes that function with the current value:
