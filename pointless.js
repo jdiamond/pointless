@@ -216,12 +216,19 @@ P.slice = function(start, end, _) {
 };
 
 P.skip = function(count, _) {
-    return P.toArray(_).slice(count);
+    return P.slice(count, undefined, _);
+};
+
+P.take = function(count, _) {
+    return P.slice(0, count, _);
 };
 
 P.join = function(separator, _) {
     if (_.join) {
         return _.join(separator);
+    }
+    if (P.isArrayLike(_)) {
+        return P.toArray(_).join(separator);
     }
     return _ === null || _ === undefined ? '' : _.toString();
 };
@@ -286,6 +293,18 @@ P.prototype.filter = function(fn) {
 P.prototype.slice = function(start, end) {
     return this.then(function(_) {
         return P.slice(start, end, _);
+    });
+};
+
+P.prototype.skip = function(count) {
+    return this.then(function(_) {
+        return P.skip(count, _);
+    });
+};
+
+P.prototype.take = function(count) {
+    return this.then(function(_) {
+        return P.take(count, _);
     });
 };
 

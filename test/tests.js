@@ -148,8 +148,20 @@ test('filter array-like of numbers', function() {
     deepEqual(isEvenSpy.getCall(1).args, [ 2, 1, arrayLike(1, 2) ]);
 });
 
+test('skip', function() {
+    deepEqual(P([ 1, 2, 3 ]).skip(1)._, [ 2, 3 ]);
+});
+
+test('take', function() {
+    deepEqual(P([ 1, 2, 3 ]).take(2)._, [ 1, 2 ]);
+});
+
 test('join array of numbers', function() {
     deepEqual(P([ 1, 2 ]).join(', ')._, '1, 2');
+});
+
+test('join array-like of numbers', function() {
+    deepEqual(P(arrayLike(1, 2)).join(', ')._, '1, 2');
 });
 
 test('keys from object', function() {

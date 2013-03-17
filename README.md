@@ -153,11 +153,27 @@ Like `Array.prototype.slice`, but works with array-like objects. Both `start`
 and `end` arguments are required, but you can pass in `undefined` for `end` to
 slice from `start` to the end of the array.
 
-    P([ 1, 2, 3, 4 ].slice(1, 2) // P([ 2, 3 ])
+    P([ 1, 2, 3, 4 ]).slice(1, 2) // P([ 2, 3 ])
 
     P.slice(1, 2, [ 1, 2, 3, 4 ]) // [ 2, 3 ]
 
     P.slice(1, undefined, [ 1, 2, 3, 4 ]) // [ 2, 3, 4 ]
+
+### skip
+
+Skips the first `count` items and returns the rest.
+
+    P([ 1, 2, 3, 4 ]).skip(2) // P([ 3, 4 ])
+
+    P.skip(2, [ 1, 2, 3, 4 ]) // [ 3, 4 ]
+
+### take
+
+Takes the first `count` items and ignores the rest.
+
+    P([ 1, 2, 3, 4 ]).take(2) // P([ 1, 2 ])
+
+    P.take(2, [ 1, 2, 3, 4 ]) // [ 1, 2 ]
 
 ### join
 
