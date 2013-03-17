@@ -10,12 +10,12 @@
   "author": "Jason Diamond",
   "license": "MIT",
   "optionalDependencies": {
-    "q": "~0.8.12"
+    "q": "*"
   },
   "devDependencies": {
-    "q": "~0.8.12",
-    "qunit": "~0.5.15",
-    "sinon": "~1.5.2"
+    "q": "*",
+    "qunit": "*",
+    "sinon": "*"
   },
   "scripts": {
     "test": "node test/run"
