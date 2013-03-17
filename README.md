@@ -206,14 +206,31 @@ unbound function. Use the `.console`, `.log`, or similar methods for that.
 
 ### console
 
-Invokes `method` on `console` with the current value. If `label` is
-defined, `': '` is appended to it, and then that's used as a prefix.
+Invokes the specified method on `console` with the current value. If `label`
+is defined, `': '` is appended to it, and then that's used as a prefix.
 
     P([ 1, 2 ]).console('log', 'foo') // P([ 1, 2 ]) and logs "foo: 1, 2"
 
 For convenience, `log`, `info`, `warn`, and `error` methods also exist:
 
     P([ 1, 2 ]).log('foo') // P([ 1, 2 ]) and logs "foo: 1, 2"
+
+### when
+
+Tests the current value and then executes one of the two functions. The return
+value of the function that executes becomes the new value.
+
+The test can be a function, in which case the current value is applied to that
+function.
+
+The test can also be a non-function. In this case, the current value is
+compared (with `===`) to that value.
+
+    P(1).when(isOdd, add1) // P(2)
+
+    P(2).when(isOdd, null, add1) // P(3)
+
+    P(3).when(3, add1) // P(4)
 
 ### Conditional Functions
 
@@ -223,20 +240,10 @@ The following functions take in a value and return a boolean:
 - P.falsy(val) - true when falsy
 - P.defined(val) - true when not `undefined` (even `null`)
 - P.undefined(val) - true when `undefined`
-- P.any(val) - true when non-empty array or truthy non-array
-- P.empty(val) - true when empty array or falsy non-array
 - P.exists(val) - true when not `null` or `undefined`
 - P.nothing(val) - true when `null` or `undefined`
-
-### when
-
-Tests the current value and then executes one of the two functions.
-
-The test can be a function, in which case the current value is
-applied to that function.
-
-The test can also be a non-function. In this case, the current
-value is compared (with `===`) to that value.
+- P.any(val) - true when non-empty array or truthy non-array
+- P.empty(val) - true when empty array or falsy non-array
 
 ### Conditional Methods
 
@@ -256,21 +263,23 @@ If the test passes, the `then` argument is invoked with the current value.
 Otherwise, the `else` argument is invoked with the current value. Both the
 `then` and `else` arguments are optional.
 
-### Partial Application
+### partial
 
-`P.partial()` returns a function that applies its arguments to the
-right of the original arguments.
+`P.partial()` returns a function that applies its arguments to the right of
+the original arguments.
 
     var pf = P.partial(f, 1, 2);
     pf(3, 4); // Calls f with 1, 2, 3, and 4
 
-`P.partialRight()` returns a function that applies its arguments to
-the left of the original arguments.
+### partialRight
+
+`P.partialRight()` returns a function that applies its arguments to the left
+of the original arguments.
 
     var pf = P.partialRight(f, 3, 4);
     pf(1, 2); // Calls f with 1, 2, 3, and 4
 
-### Function Chaining
+### chain
 
 `P.chain()` accepts any number of functions and returns a new function that
 passes its argument through those function arguments. It's like reverse
@@ -279,7 +288,7 @@ function composition.
     var squareThenIncrement = P.chain(square, increment);
     squareThenIncrement(2); // Equivalent to increment(square(2)) so returns 5
 
-### Formatting
+### format
 
 Use `P.format()` like you would use C#'s `string.Format()`:
 
@@ -291,7 +300,7 @@ It also accepts named placeholders when the second argument is an object:
 
 The second argument can be an array:
 
-    var greeting = P.format('Hello, {0} and {1}', [ person1.name, person2.name ]);
+    var greeting = P.format('Hello, {0} and {1}!', [ person1.name, person2.name ]);
 
 If only one argument is specified, a partially applied function is returned:
 
@@ -304,34 +313,30 @@ When used as a method on Pointless objects, the current value is the data:
 
 ### then
 
-Pointless objects have a `.then()` method that takes in a function
-and invokes that function with the current value:
+Pointless objects have a `.then()` method that takes in a function and invokes
+that function with the current value:
 
     P(42).then(function(val) { equal( val, 42 ); });
 
-`.then()` returns a Pointless object wrapping the return value of
-its callback:
+`.then()` returns a Pointless object wrapping the return value of its
+callback:
 
     equal( P(42).then(add1)._, 43 );
 
     function add1(val) { return val + 1; }
 
-This method is supposed to resemble the `.then()` method from
-Promises/A.
+This method is supposed to resemble the `.then()` method from Promises/A.
 
 Promises
 --------
 
-Pointless objects work well with promises. Invoke `.eventually()` to
-get a Pointless object with a `.then()` method that is Promises/A
-compliant.
+Pointless objects work well with promises. Invoke `.eventually()` to get a
+Pointless object with a `.then()` method that is Promises/A compliant.
 
-All of the usual Pointless methods are still available but they all
-implicitly call `.then()` so that they can be applied to the
-resolved values.
+All of the usual Pointless methods are still available but they all implicitly
+call `.then()` so that they can be applied to the resolved values.
 
-Code to map the results of a promise for an array that looks like
-this:
+Code to map the results of a promise for an array that looks like this:
 
     getPromiseForArray().then(function(arr) {
         return arr.map(processResult);
@@ -343,10 +348,9 @@ can become this:
     .eventually()
     .map(processResult)
 
-The value of that Pointless object will be a promise. To use the
-fulfilled value of that promise, pass a callback function to
-`.then()` just like you would do with the result of the previous
-example:
+The value of that Pointless object will be a promise. To use the fulfilled
+value of that promise, pass a callback function to `.then()` just like you
+would do with the result of the previous example:
 
     P(getPromiseForArray())
     .eventually()
@@ -355,7 +359,7 @@ example:
         // values and everything in it has been fulfilled.
     });
 
-Pointless relies on [Q](http://documentup.com/kriskowal/q/) for its
-promise implementation. If you need support for promises, be sure to
-include Q (or install it in node_modules). If you never call
-`.eventually()`, you don't need to bother with Q.
+Pointless relies on [Q](http://documentup.com/kriskowal/q/) for its promise
+implementation. If you need support for promises, be sure to include Q (or
+install it in node_modules). If you never call `.eventually()`, you don't need
+to bother with Q.
