@@ -101,6 +101,15 @@ P.extend = function(target, source) {
     return target;
 };
 
+P.defaults = function(target, source) {
+    for (var key in source) {
+        if (source.hasOwnProperty(key) && !target.hasOwnProperty(key)) {
+            target[key] = source[key];
+        }
+    }
+    return target;
+};
+
 P.isArrayLike = function(_) {
     return _ && typeof _.length === 'number';
 };

@@ -176,6 +176,23 @@ test('keys from object', function() {
     );
 });
 
+test('extends', function() {
+    var target = {};
+    var source = { foo: 1 };
+    var result = P.extend(target, source);
+    strictEqual(result, target);
+    strictEqual(target.foo, 1);
+});
+
+test('defaults', function() {
+    var target = { foo: 1 };
+    var source = { foo: 2, bar: 3 };
+    var result = P.defaults(target, source);
+    strictEqual(result, target);
+    strictEqual(target.foo, 1);
+    strictEqual(target.bar, 3);
+});
+
 function arrayLike() {
     return arguments;
 }

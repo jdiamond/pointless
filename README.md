@@ -194,6 +194,19 @@ Like `Object.keys()`, but works even when `Object.keys` isn't defined.
 JavaScript does not guarantee the order in which an object's keys are returned
 so don't rely on it.
 
+### extend
+
+Copies properties from source object to target object.
+
+    P.extend({ a: 1 }, { a: 2, b: 3 }) // { a: 2, b: 3 }
+
+### defaults
+
+Copies properties from source object to target object unless already defined in
+target object.
+
+    P.defaults({ a: 1 }, { a: 2, b: 3 }) // { a: 1, b: 3 }
+
 ### tap
 
 Invokes the callback function with the current value and then returns the
