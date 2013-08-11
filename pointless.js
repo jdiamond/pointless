@@ -13,25 +13,25 @@ function P(_) {
 }
 
 P.unary = function(fn) {
-    return function(value) {
+    return function(_) {
         if (arguments.length === 0) {
             return P.unary(fn);
         }
-        return fn.call(this, value);
+        return fn.call(this, _);
     };
 };
 
 P.binary = function(fn) {
-    return function(value1, value2) {
+    return function(_1, _2) {
         switch (arguments.length) {
             case 0:
                 return P.binary(fn);
             case 1:
-                return P.unary(function(value2) {
-                    return fn.call(this, value1, value2);
+                return P.unary(function(_2) {
+                    return fn.call(this, _1, _2);
                 });
             default:
-                return fn.call(this, value1, value2);
+                return fn.call(this, _1, _2);
         }
     };
 };
@@ -70,8 +70,8 @@ P.partialRight = function(fn) {
 
 P.chain = function() {
     var fns = P.toArray(arguments);
-    return function(value) {
-        return fns.reduce(function(p, c) { return c(p); }, value);
+    return function(_) {
+        return P.inject(function(_, fn) { return fn(_); }, _, fns);
     };
 };
 
@@ -114,10 +114,10 @@ P.toArray = function(_) {
 
 P.map = P.binary(function(fn, _) {
     if (typeof fn === 'object') {
-        return P.map(function(val) {
+        return P.map(function(_) {
             var obj = {};
             P(fn).keys().each(function(key) {
-                obj[key] = fn[key](val);
+                obj[key] = fn[key](_);
             });
             return obj;
         }, _);
@@ -265,15 +265,11 @@ proto.fail = function(rejected) {
 };
 
 proto.format = function(fmt) {
-    return this.then(function(val) {
-        return P.format(fmt, val);
-    });
+    return this.then(function(_) { return P.format(fmt, _); });
 };
 
 proto.extend = function(source) {
-    return this.then(function(val) {
-        return P.extend(val, source);
-    });
+    return this.then(function(_) { return P.extend(_, source); });
 };
 
 proto.map = function(fn) {
@@ -281,23 +277,19 @@ proto.map = function(fn) {
 };
 
 proto.reduce = function(fn) {
-    return this.then(function(val) {
-        return P.reduce(fn, val);
-    });
+    return this.then(function(_) { return P.reduce(fn, _); });
 };
 
 proto.inject = function(fn, seed) {
-    return this.then(function(val) {
-        return P.inject(fn, seed, val);
-    });
+    return this.then(function(_) { return P.inject(fn, seed, _); });
 };
 
 proto.each = function(fn) {
-    return this.then(function(val) { return P.each(fn, val); });
+    return this.then(function(_) { return P.each(fn, _); });
 };
 
 proto.filter = function(fn) {
-    return this.then(function(val) { return P.filter(fn, val); });
+    return this.then(function(_) { return P.filter(fn, _); });
 };
 
 proto.slice = function(start, end) {
@@ -331,16 +323,16 @@ proto.keys = function() {
 };
 
 proto.tap = function(fn) {
-    return this.then(function(val) {
-        fn(val);
-        return val;
+    return this.then(function(_) {
+        fn(_);
+        return _;
     });
 };
 
 proto.console = function(method, label) {
-    return this.tap(function(val) {
+    return this.tap(function(_) {
         if (typeof console !== 'undefined') {
-            console[method](label ? label + ': ' + val : val);
+            console[method](label ? label + ': ' + _ : _);
         }
     });
 };
@@ -390,11 +382,11 @@ proto.immediately = function() {
 
 var Q;
 
-function Promise(val) {
-    if (!(this instanceof Promise)) { return new Promise(val); }
+function Promise(_) {
+    if (!(this instanceof Promise)) { return new Promise(_); }
     Q = Q || require('q');
     if (!Q) { throw new Error('Q?'); }
-    Pointless.call(this, Q.when(val));
+    Pointless.call(this, Q(_));
 }
 
 Promise.prototype = new Pointless();
@@ -403,26 +395,26 @@ Promise.prototype.constructor = Promise;
 
 Promise.prototype.then = function(fulfilled, rejected, progressed) {
     return new this.constructor(
-        this._.then(function(val) {
-            return Array.isArray(val) ? Q.all(val) : val;
+        this._.then(function(_) {
+            return P.isArrayLike(_) ? Q.all(_) : _;
         })
         .then(fulfilled, rejected, progressed)
     );
 };
 
 Promise.prototype.reduce = function(fn) {
-    return this.then(function(val) {
+    return this.then(function(_) {
         return P.reduce(function reducer(previous, current) {
             return Q.when(previous)
                     .then(function(previous) {
                         return fn(previous, current);
                     });
-        }, val);
+        }, _);
     });
 };
 
 Promise.prototype.inject = function(fn, seed) {
-    return this.then(function(val) {
+    return this.then(function(_) {
         return Q.when(seed)
                 .then(function(seed) {
                     return P.inject(function(previous, current) {
@@ -430,7 +422,7 @@ Promise.prototype.inject = function(fn, seed) {
                                 .then(function(previous) {
                                     return fn(previous, current);
                                 });
-                    }, seed, val);
+                    }, seed, _);
                 });
     });
 };
