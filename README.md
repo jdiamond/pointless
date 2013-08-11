@@ -28,7 +28,7 @@ That example may seem pointless (it is!), but you would normally use one or
 more methods on the Pointless object before accessing its value.
 
 Pointless objects provide many methods for manipulating their values and
-returning new Pointless objects. Here's a more involved example:
+returning new Pointless objects. Here's a more interesting example:
 
     P(document.querySelectorAll('#form input'))
     .filter(P.get('name'))
@@ -71,9 +71,9 @@ find yourself writing function expressions as above, you may be able to
 discover a way to remove them by exploring the API.
 
 Pointless may seem familiar to the popular Underscore and Lo-Dash libraries
-and it is. Many of the functions in Pointless accept their arguments in
-reverse when compared to these libraries. This is done on purpose to make the
-automatic partial application more convenient.
+and it is, but be careful. Many of the functions in Pointless accept their
+arguments in reverse compared to their closest counterparts in Underscore.
+This is done on purpose to make automatic partial application more convenient.
 
 API
 ---
@@ -92,7 +92,7 @@ or `.then()` method.
 
 Maps (tranforms) each value into new values. The callback function does _not_
 receive an index argument.
-    
+
     P([ 1, 2 ]).map(add1) // P([ 2, 3 ])
 
     P.map(add1, [ 1, 2 ]) // [ 2, 3 ]
@@ -135,7 +135,7 @@ function.
     P.filter(isOdd, [ 1, 2, 3 ]) // [ 1, 3 ]
 
     P.filter(isOdd)([ 1, 2, 3 ]) // [ 1, 3 ]
-    
+
 ### each
 
 Iterates over each value and passes it into the callback function. The
@@ -151,7 +151,7 @@ callback function does _not_ receive an index argument.
 
 Like `Array.prototype.slice`, but works with array-like objects. Both `start`
 and `end` arguments are required, but you can pass in `undefined` for `end` to
-slice from `start` to the end of the array.
+slice from `start` to the end of the array. If that bothers you, use `P.skip`.
 
     P([ 1, 2, 3, 4 ]).slice(1, 2) // P([ 2, 3 ])
 
@@ -191,8 +191,8 @@ Like `Object.keys()`, but works even when `Object.keys` isn't defined.
 
     P.keys({ a: 1, b: 2 }) // [ 'a', 'b' ] or [ 'b', 'a' ]
 
-JavaScript does not guarantee the order in which an object's keys are returned
-so don't rely on it.
+The JavaScript language does not guarantee the order in which an object's keys
+are returned so try not to rely on it.
 
 ### extend
 
