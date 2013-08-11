@@ -80,17 +80,14 @@ P.chain = function() {
 
 var formatRegExp = /\{([^}]+)\}/g;
 
-P.format = function(fmt, data) {
-    if (arguments.length === 1) {
-        return P.partial(P.format, fmt);
-    }
+P.format = P.nary(2, function(fmt, data) {
     var args = arguments.length > 2 ? P.skip(1, arguments) : data;
     return fmt.replace(formatRegExp, function(match, key) {
         var val = key === '0' ? (args && args.length > 0 ? args[0] : data)
                               : (args && args[key]);
         return P.exists(val) ? val : '';
     });
-};
+});
 
 P.extend = function(target, source) {
     for (var key in source) {
