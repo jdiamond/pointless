@@ -8,6 +8,8 @@
     }
 })(this, function(require) {
 
+'use strict';
+
 function P(_) {
     return new Pointless(_);
 }
