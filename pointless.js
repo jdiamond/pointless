@@ -111,7 +111,7 @@ P.defaults = function(target, source) {
 };
 
 P.isArrayLike = function(_) {
-    return _ && typeof _.length === 'number';
+    return _ && typeof _ === 'object' && typeof _.length === 'number';
 };
 
 P.toArray = function(_) {
