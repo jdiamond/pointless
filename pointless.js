@@ -8,11 +8,8 @@
     }
 })(this, function(require) {
 
-var P = Pointless;
-
-function Pointless(val) {
-    if (!(this instanceof P)) { return new P(val); }
-    this._ = val;
+function P(_) {
+    return new Pointless(_);
 }
 
 P.unary = function(fn) {
@@ -252,88 +249,95 @@ P.keys = function(_) {
     return keys;
 };
 
-P.prototype.then = function(fulfilled) {
+function Pointless(_) {
+    if (!(this instanceof Pointless)) { return new Pointless(_); }
+    this._ = _;
+}
+
+var proto = Pointless.prototype;
+
+proto.then = function(fulfilled) {
     return new this.constructor(fulfilled(this._));
 };
 
-P.prototype.fail = function(rejected) {
+proto.fail = function(rejected) {
     return this.then(null, rejected);
 };
 
-P.prototype.format = function(fmt) {
+proto.format = function(fmt) {
     return this.then(function(val) {
         return P.format(fmt, val);
     });
 };
 
-P.prototype.extend = function(source) {
+proto.extend = function(source) {
     return this.then(function(val) {
         return P.extend(val, source);
     });
 };
 
-P.prototype.map = function(fn) {
+proto.map = function(fn) {
     return this.then(function(_) { return P.map(fn, _); });
 };
 
-P.prototype.reduce = function(fn) {
+proto.reduce = function(fn) {
     return this.then(function(val) {
         return P.reduce(fn, val);
     });
 };
 
-P.prototype.inject = function(fn, seed) {
+proto.inject = function(fn, seed) {
     return this.then(function(val) {
         return P.inject(fn, seed, val);
     });
 };
 
-P.prototype.each = function(fn) {
+proto.each = function(fn) {
     return this.then(function(val) { return P.each(fn, val); });
 };
 
-P.prototype.filter = function(fn) {
+proto.filter = function(fn) {
     return this.then(function(val) { return P.filter(fn, val); });
 };
 
-P.prototype.slice = function(start, end) {
+proto.slice = function(start, end) {
     return this.then(function(_) {
         return P.slice(start, end, _);
     });
 };
 
-P.prototype.skip = function(count) {
+proto.skip = function(count) {
     return this.then(function(_) {
         return P.skip(count, _);
     });
 };
 
-P.prototype.take = function(count) {
+proto.take = function(count) {
     return this.then(function(_) {
         return P.take(count, _);
     });
 };
 
-P.prototype.join = function(separator) {
+proto.join = function(separator) {
     return this.then(function(_) {
         return P.join(separator, _);
     });
 };
 
-P.prototype.keys = function() {
+proto.keys = function() {
     return this.then(function(_) {
         return P.keys(_);
     });
 };
 
-P.prototype.tap = function(fn) {
+proto.tap = function(fn) {
     return this.then(function(val) {
         fn(val);
         return val;
     });
 };
 
-P.prototype.console = function(method, label) {
+proto.console = function(method, label) {
     return this.tap(function(val) {
         if (typeof console !== 'undefined') {
             console[method](label ? label + ': ' + val : val);
@@ -344,12 +348,12 @@ P.prototype.console = function(method, label) {
 var consoleMethods = 'log info warn error'.split(' ');
 
 P.each(function(name) {
-    P.prototype[name] = function(label) {
+    proto[name] = function(label) {
         return this.console(name, label);
     };
 }, consoleMethods);
 
-P.prototype.when = function(test, then, else_) {
+proto.when = function(test, then, else_) {
     return this.then(function(_) {
         return (typeof test === 'function' ? test(_)
                                            : _ === test) ? then  ? then (_) : _
@@ -371,16 +375,16 @@ var conditionals = 'truthy falsy defined undefined exists nothing any empty'.spl
 
 P.each(function(name) {
     var test = P[name];
-    P.prototype[name] = function(then, else_) {
+    proto[name] = function(then, else_) {
         return this.when(test, then, else_);
     };
 }, conditionals);
 
-P.prototype.eventually = function() {
+proto.eventually = function() {
     return new Promise(this._);
 };
 
-P.prototype.immediately = function() {
+proto.immediately = function() {
     return new P(this._);
 };
 
@@ -390,10 +394,10 @@ function Promise(val) {
     if (!(this instanceof Promise)) { return new Promise(val); }
     Q = Q || require('q');
     if (!Q) { throw new Error('Q?'); }
-    P.call(this, Q.when(val));
+    Pointless.call(this, Q.when(val));
 }
 
-Promise.prototype = new P();
+Promise.prototype = new Pointless();
 
 Promise.prototype.constructor = Promise;
 
