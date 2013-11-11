@@ -429,6 +429,7 @@ Promise.prototype.inject = function(fn, seed) {
     });
 };
 
+P.Pointless = Pointless;
 P.Promise = Promise;
 
 return P;
