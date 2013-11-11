@@ -133,11 +133,11 @@ asyncTest('reduce array of numbers with function returning promise', function() 
     });
 });
 
-asyncTest('inject number', function() {
+asyncTest('fold number', function() {
     var addSpy = sinon.spy(add);
     P(12)
     .eventually()
-    .inject(addSpy, 1)
+    .fold(1, addSpy)
     .then(function(result) {
         equal(result, 13);
         equal(addSpy.callCount, 1);
@@ -146,11 +146,11 @@ asyncTest('inject number', function() {
     });
 });
 
-asyncTest('inject array of numbers', function() {
+asyncTest('fold array of numbers', function() {
     var addSpy = sinon.spy(add);
     P([ 1, 2 ])
     .eventually()
-    .inject(addSpy, 0)
+    .fold(0, addSpy)
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 2);
@@ -160,11 +160,11 @@ asyncTest('inject array of numbers', function() {
     });
 });
 
-asyncTest('inject empty array', function() {
+asyncTest('fold empty array', function() {
     var addSpy = sinon.spy(add);
     P([])
     .eventually()
-    .inject(addSpy, 12)
+    .fold(12, addSpy)
     .then(function(result) {
         equal(result, 12);
         equal(addSpy.callCount, 0);
@@ -172,11 +172,11 @@ asyncTest('inject empty array', function() {
     });
 });
 
-asyncTest('inject empty array-like', function() {
+asyncTest('fold empty array-like', function() {
     var addSpy = sinon.spy(add);
     P(arrayLike())
     .eventually()
-    .inject(addSpy, 12)
+    .fold(12, addSpy)
     .then(function(result) {
         equal(result, 12);
         equal(addSpy.callCount, 0);
@@ -184,11 +184,11 @@ asyncTest('inject empty array-like', function() {
     });
 });
 
-asyncTest('inject array of numbers with function returning promise', function() {
+asyncTest('fold array of numbers with function returning promise', function() {
     var addSpy = sinon.spy(eventuallyAdd);
     P([ 1, 2 ])
     .eventually()
-    .inject(addSpy, 0)
+    .fold(0, addSpy)
     .then(function(result) {
         equal(result, 3);
         equal(addSpy.callCount, 2);

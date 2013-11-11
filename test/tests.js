@@ -77,21 +77,21 @@ test('reduce returns partial', function() {
     equal(adder([ 1, 2 ]), 3);
 });
 
-test('inject number with seed', function() {
-    equal(P(12).inject(add, 1)._, 13);
+test('fold number', function() {
+    equal(P(12).fold(1, add)._, 13);
 });
 
-test('inject array of numbers', function() {
-    equal(P([ 1, 2 ]).inject(add, 0)._, 3);
+test('fold array of numbers', function() {
+    equal(P([ 1, 2 ]).fold(0, add)._, 3);
 });
 
-test('inject array-like of numbers', function() {
-    equal(P(arrayLike(1, 2)).inject(add, 0)._, 3);
+test('fold array-like of numbers', function() {
+    equal(P(arrayLike(1, 2)).fold(0, add)._, 3);
 });
 
-test('inject returns partial', function() {
-    var adder = P.inject(add);
-    var adderTo3 = adder(3);
+test('fold returns partial', function() {
+    var foldFrom3 = P.fold(3);
+    var adderTo3 = foldFrom3(add);
     equal(adderTo3([ 1, 2 ]), 6);
 });
 

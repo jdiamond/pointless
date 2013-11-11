@@ -73,7 +73,7 @@ P.partialRight = function(fn) {
 P.chain = function() {
     var fns = P.toArray(arguments);
     return function(_) {
-        return P.inject(function(_, fn) { return fn(_); }, _, fns);
+        return P.fold(_, function(_, fn) { return fn(_); }, fns);
     };
 };
 
@@ -163,12 +163,12 @@ P.reduce = P.binary(function(fn, _) {
     return result;
 });
 
-P.inject = P.nary(3, function(fn, seed, _) {
+P.fold = P.nary(3, function(seed, fn, _) {
     var result;
-    if (_.inject) {
-        result = _.inject(function(previous, current) {
+    if (_.fold) {
+        result = _.fold(seed, function(previous, current) {
             return fn(previous, current);
-        }, seed);
+        });
     } else if (P.isArrayLike(_)) {
         var i = 0;
         result = seed;
@@ -282,8 +282,8 @@ proto.reduce = function(fn) {
     return this.then(function(_) { return P.reduce(fn, _); });
 };
 
-proto.inject = function(fn, seed) {
-    return this.then(function(_) { return P.inject(fn, seed, _); });
+proto.fold = function(seed, fn) {
+    return this.then(function(_) { return P.fold(seed, fn, _); });
 };
 
 proto.each = function(fn) {
@@ -415,16 +415,16 @@ Promise.prototype.reduce = function(fn) {
     });
 };
 
-Promise.prototype.inject = function(fn, seed) {
+Promise.prototype.fold = function(seed, fn) {
     return this.then(function(_) {
         return Q.when(seed)
                 .then(function(seed) {
-                    return P.inject(function(previous, current) {
+                    return P.fold(seed, function(previous, current) {
                         return Q.when(previous)
                                 .then(function(previous) {
                                     return fn(previous, current);
                                 });
-                    }, seed, _);
+                    }, _);
                 });
     });
 };

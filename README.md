@@ -111,19 +111,19 @@ result in a `TypeError`.
 
     P.reduce(add)([ 1, 2 ]) // 3
 
-### inject
+### fold
 
-Reduces values to a single value, starting with a seed value. The callback
+Folds a value to a single value, starting with a seed value. The callback
 function receives the previous and current values, but does _not_ receive an
 index argument.
 
-    P([ 1, 2 ]).inject(add, 3) // P(6)
+    P([ 1, 2 ]).fold(3, add) // P(6)
 
-    P.inject(add, 3, [ 1, 2 ]) // 6
+    P.fold(3, add, [ 1, 2 ]) // 6
 
-    P.inject(add)(3, [ 1, 2 ]) // 6
+    P.fold(3)(add, [ 1, 2 ]) // 6
 
-    P.inject(add)(3)([ 1, 2 ]) // 6
+    P.fold(3)(add)([ 1, 2 ]) // 6
 
 ### filter
 
